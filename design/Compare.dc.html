@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card Wallet · Compare</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B6E73}a:hover{color:#084F53}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F5F7; color: #14181F; font-family: 'IBM Plex Sans', 'Helvetica Neue', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #DDE1E7; padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 12px">
+<h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em">Compare</h1>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<button type="button" style="min-height: 64px; border-radius: 12px; border: 0; background: #7A2E3A; color: #FFFFFF; text-align: left; padding: 10px 12px; font: 400 12px 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; justify-content: space-between">
+<span style="font-size: 15px; font-weight: 700">[Card A]</span><span style="opacity: 0.85">Change ▾</span></button>
+<button type="button" style="min-height: 64px; border-radius: 12px; border: 0; background: #2F5D3A; color: #FFFFFF; text-align: left; padding: 10px 12px; font: 400 12px 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; justify-content: space-between">
+<span style="font-size: 15px; font-weight: 700">[Card B]</span><span style="opacity: 0.85">Change ▾</span></button>
+</div>
+<label style="display: flex; align-items: center; gap: 10px; font-size: 14px; min-height: 32px">
+<input type="checkbox" checked="{{onlyMine}}" onChange="{{flip}}" style="width: 20px; height: 20px; accent-color: #0B6E73">
+<span>Only my cards</span>
+</label>
+</header>
+
+<main style="flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+<sc-if value="{{r.head}}" hint-placeholder-val="{{ false }}">
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #4A5361; margin: 14px 2px 6px">{{r.label}}</div>
+</sc-if>
+<sc-if value="{{r.body}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; color: #4A5361">{{r.label}}</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<span style="{{r.aStyle}}">{{r.a}}</span>
+<span style="{{r.bStyle}}">{{r.b}}</span>
+</div>
+</div>
+</sc-if>
+</sc-for>
+<p style="margin: 10px 2px 0; font-size: 12px; color: #4A5361; line-height: 1.5">Green marks the better value. Terms: CFPB TCCP Jul–Dec 2025 · Rewards checked [DATE]. Not financial advice.</p>
+</main>
+
+<nav aria-label="Tabs" style="background: #FFFFFF; border-top: 1px solid #DDE1E7; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 4px 18px">
+<a href="Main.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"></path><path d="M6 10v9h12v-9"></path></svg>Home</a>
+<a href="Wallet.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5"></rect><path d="M3 10h18"></path></svg>Cards</a>
+<a href="Offers.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 11 3.8H4v7l9.6 9.6a2 2 0 0 0 2.8 0l4.2-4.2a2 2 0 0 0 0-2.8z"></path><circle cx="7.5" cy="7.5" r="1.3"></circle></svg>Offers</a>
+<a href="Compare.dc.html" aria-current="page" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{accent}}; font-size: 11px; font-weight: 600; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="1.5"></rect><rect x="14" y="4" width="7" height="16" rx="1.5"></rect></svg>Compare</a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0B6E73","options":["#0B6E73","#1F4FA3","#14181F"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { onlyMine: true }; }
+renderVals() {
+const base = 'font-size: 16px; font-weight: 600; padding: 6px 8px; border-radius: 8px;';
+const win = base + ' background: #E7F4EC; color: #1F6B3A;';
+const D = [
+['h', 'Rewards'],
+['r', 'Dining', '4x', '1%', 'a'],
+['r', 'Groceries', '2x', '6%', 'b'],
+['r', 'Travel', '3x', '1%', 'a'],
+['r', 'Online shopping', '1x', '5%', 'b'],
+['r', 'Everything else', '1x', '1%', ''],
+['h', 'Fees & rates'],
+['r', 'Annual fee', '[$X]', '[$0]', 'b'],
+['r', 'Foreign transaction fee', '[None]', '[3%]', 'a'],
+['r', 'Purchase APR', '[X%–Y%]', '[X%–Y%]', ''],
+['h', 'Your offers'],
+['r', 'Active offers', '3', '1', '']
+];
+const rows = D.map(d => d[0] === 'h'
+? { head: true, body: false, label: d[1] }
+: { head: false, body: true, label: d[1], a: d[2], b: d[3], aStyle: d[4] === 'a' ? win : base, bStyle: d[4] === 'b' ? win : base });
+return { accent: this.props.accent ?? '#0B6E73', rows, onlyMine: this.state.onlyMine, flip: () => this.setState({ onlyMine: !this.state.onlyMine }) };
+}
+}
+</script>
+</body>
+</html>

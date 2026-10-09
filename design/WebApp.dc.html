@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card Wallet · Web home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B6E73}a:hover{color:#084F53}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F4F5F7; color: #14181F; font-family: 'IBM Plex Sans', 'Helvetica Neue', system-ui, sans-serif; display: flex; overflow: hidden">
+
+<aside style="width: 232px; flex: 0 0 232px; background: #FFFFFF; border-right: 1px solid #DDE1E7; padding: 20px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; padding: 4px 10px 20px"><span style="width: 26px; height: 18px; border-radius: 4px; background: {{accent}}; display: inline-block"></span>Card Wallet</div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+<a href="{{n.href}}" style="{{n.style}}">{{n.label}}</a>
+</sc-for>
+<div style="flex: 1"></div>
+<div style="border-top: 1px solid #DDE1E7; padding: 14px 10px 0; font-size: 13px; color: #4A5361">[Name]<br>[email]</div>
+</aside>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<div style="background: #FCEFE4; color: #8A3F0E; font-size: 14px; padding: 10px 32px; display: flex; justify-content: space-between; align-items: center">
+<span><strong>Demo mode</strong> · sample cards and offers. Nothing you do here is saved.</span>
+<a href="Landing.dc.html" style="color: #8A3F0E; font-weight: 600">Sign in to use your own cards</a>
+</div>
+
+<main style="flex: 1; min-height: 0; padding: 28px 32px; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 24px; overflow: hidden">
+
+<section style="display: flex; flex-direction: column; gap: 18px; min-width: 0">
+<h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em">Which card should you use?</h1>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="6">
+<button type="button" onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="{{c.chip}}">{{c.label}}</button>
+</sc-for>
+</div>
+
+<div style="background: {{best.bg}}; border-radius: 18px; padding: 24px; color: #FFFFFF; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 8px 24px rgba(20,24,31,0.16)">
+<div style="display: flex; justify-content: space-between"><span style="font-size: 14px; font-weight: 600; opacity: 0.85">Best for {{sel}}</span><span style="font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 999px">Top pick</span></div>
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div><div style="font-size: 26px; font-weight: 700">{{best.name}}</div><div style="font-size: 14px; opacity: 0.85">{{best.issuer}} · •••• {{best.last4}}</div></div>
+<div style="text-align: right"><div style="font-size: 44px; font-weight: 700; line-height: 1">{{best.rate}}</div><div style="font-size: 13px; opacity: 0.85">{{best.unit}}</div></div>
+</div>
+<div style="font-size: 14px; background: rgba(255,255,255,0.15); padding: 10px 14px; border-radius: 10px">{{best.reason}}</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{others}}" as="o" hint-placeholder-count="2">
+<div style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 14px; padding: 16px; display: flex; align-items: center; gap: 12px">
+<span style="width: 10px; height: 40px; border-radius: 4px; background: {{o.art}}; display: inline-block"></span>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600">{{o.name}}</div><div style="font-size: 13px; color: #4A5361">{{o.reason}}</div></div>
+<span style="font-size: 20px; font-weight: 700; color: #084F53">{{o.rate}}</span>
+</div>
+</sc-for>
+</div>
+<p style="margin: 0; font-size: 12px; color: #4A5361">Rewards checked [DATE] from issuer pages · Fees: CFPB TCCP · Points valued at 1¢ (change in Settings) · Not financial advice.</p>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 16px; min-width: 0">
+<div style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">Ending soon</h2>
+<a href="Offers.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: none">All offers</a>
+</div>
+<sc-for list="{{ending}}" as="e" hint-placeholder-count="4">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #EEF0F3">
+<div style="min-width: 0"><div style="font-weight: 600; font-size: 15px">{{e.merchant}} <span style="font-weight: 700; color: #8A3F0E">· {{e.value}}</span></div><div style="font-size: 13px; color: #4A5361">{{e.card}}</div></div>
+<span style="font-size: 13px; font-weight: 600; color: {{e.color}}; white-space: nowrap">{{e.due}}</span>
+</div>
+</sc-for>
+<a href="AddOffer.dc.html" style="margin-top: 8px; min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 10px; border: 1px dashed #9AA4B2; color: #14181F; font-weight: 600; font-size: 14px; text-decoration: none">+ Add offer or coupon · drop a screenshot</a>
+</div>
+
+<div style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 16px; padding: 18px">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px">
+<h2 style="margin: 0; font-size: 17px; font-weight: 700">My cards</h2>
+<a href="WebCatalog.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: none">+ Add card</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{cards}}" as="k" hint-placeholder-count="4">
+<a href="Card.dc.html" style="border-radius: 10px; background: {{k.art}}; color: #FFFFFF; padding: 12px; min-height: 64px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none">
+<span style="font-weight: 700; font-size: 14px">{{k.name}}</span><span style="font-size: 12px; opacity: 0.85">•••• {{k.last4}}</span>
+</a>
+</sc-for>
+</div>
+</div>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0B6E73","options":["#0B6E73","#1F4FA3","#14181F"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { cat: 'dining' }; }
+renderVals() {
+const accent = this.props.accent ?? '#0B6E73';
+const D = {
+dining: { label: 'Dining', bg: '#7A2E3A', sel: 'dining', best: { name: '[Card A]', issuer: '[Issuer]', last4: '1234', rate: '4x', unit: 'points at restaurants', reason: 'Also: your [Merchant 1] offer gives 10% back, ends in 3 days' }, others: [ { name: '[Card B]', reason: '3% back on dining', rate: '3%', art: '#2F5D3A' }, { name: '[Card C]', reason: '2x points everywhere', rate: '2x', art: '#1F3A6B' } ] },
+groceries: { label: 'Groceries', bg: '#2F5D3A', sel: 'groceries', best: { name: '[Card B]', issuer: '[Issuer]', last4: '5678', rate: '6%', unit: 'at supermarkets', reason: 'Up to [$6,000] a year, then 1%' }, others: [ { name: '[Card A]', reason: '2x points', rate: '2x', art: '#7A2E3A' }, { name: '[Card D]', reason: '1.5% flat', rate: '1.5%', art: '#5A4632' } ] },
+travel: { label: 'Travel', bg: '#1F3A6B', sel: 'travel', best: { name: '[Card C]', issuer: '[Issuer]', last4: '9012', rate: '5x', unit: 'miles on travel', reason: 'No foreign transaction fee on this card' }, others: [ { name: '[Card A]', reason: '3x on travel', rate: '3x', art: '#7A2E3A' }, { name: '[Card B]', reason: '1% back', rate: '1%', art: '#2F5D3A' } ] },
+gas: { label: 'Gas', bg: '#5A4632', sel: 'gas', best: { name: '[Card D]', issuer: '[Issuer]', last4: '3456', rate: '3%', unit: 'at gas stations', reason: 'Best fuel rate in your wallet' }, others: [ { name: '[Card C]', reason: '2x everywhere', rate: '2x', art: '#1F3A6B' }, { name: '[Card B]', reason: '1% back', rate: '1%', art: '#2F5D3A' } ] },
+online: { label: 'Online', bg: '#3B3F6B', sel: 'online shopping', best: { name: '[Card B]', issuer: '[Issuer]', last4: '5678', rate: '5%', unit: 'at online retailers', reason: 'Rotating category active this quarter' }, others: [ { name: '[Card C]', reason: '2x everywhere', rate: '2x', art: '#1F3A6B' }, { name: '[Card D]', reason: '1.5% flat', rate: '1.5%', art: '#5A4632' } ] },
+other: { label: 'Everything else', bg: '#2E4A52', sel: 'everyday spend', best: { name: '[Card C]', issuer: '[Issuer]', last4: '9012', rate: '2x', unit: 'points on everything', reason: 'Best catch-all rate you have' }, others: [ { name: '[Card D]', reason: '1.5% flat', rate: '1.5%', art: '#5A4632' }, { name: '[Card A]', reason: '1x', rate: '1x', art: '#7A2E3A' } ] }
+};
+const cur = D[this.state.cat];
+const cats = Object.keys(D).map(k => { const on = k === this.state.cat; return { label: D[k].label, on, pick: () => this.setState({ cat: k }), chip: 'min-height: 40px; padding: 0 16px; border-radius: 999px; cursor: pointer; font: 600 14px \'IBM Plex Sans\', system-ui, sans-serif; border: 1px solid ' + (on ? accent : '#DDE1E7') + '; background: ' + (on ? '#E6F1F1' : '#FFFFFF') + '; color: ' + (on ? '#084F53' : '#14181F') + ';' }; });
+const navItems = [['Home','WebApp.dc.html',true],['My cards','Wallet.dc.html',false],['Offers & coupons','Offers.dc.html',false],['Card catalog','WebCatalog.dc.html',false],['Compare','Compare.dc.html',false]];
+const nav = navItems.map(([label, href, on]) => ({ label, href, style: 'min-height: 44px; padding: 0 12px; border-radius: 10px; display: flex; align-items: center; text-decoration: none; font-size: 15px; font-weight: ' + (on ? 600 : 500) + '; color: ' + (on ? '#084F53' : '#14181F') + '; background: ' + (on ? '#E6F1F1' : 'transparent') + ';' }));
+const ending = [
+{ merchant: '[Merchant 1]', value: '10% back', card: '[Card A]', due: '3 days', color: '#A3261E' },
+{ merchant: '[Phone carrier]', value: '$100 off', card: 'Coupon · no card', due: '4 days', color: '#A3261E' },
+{ merchant: '[Merchant 3]', value: '5x pts', card: '[Card B]', due: '6 days', color: '#A3261E' },
+{ merchant: '[Clothing store]', value: '25% off', card: 'Coupon · no card', due: '[date]', color: '#4A5361' }
+];
+const cards = [ { name: '[Card A]', last4: '1234', art: '#7A2E3A' }, { name: '[Card B]', last4: '5678', art: '#2F5D3A' }, { name: '[Card C]', last4: '9012', art: '#1F3A6B' }, { name: '[Card D]', last4: '3456', art: '#5A4632' } ];
+return { accent, cats, sel: cur.sel, best: cur.best, others: cur.others, nav, ending, cards };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card Wallet · Catalog</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B6E73}a:hover{color:#084F53}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F4F5F7; color: #14181F; font-family: 'IBM Plex Sans', 'Helvetica Neue', system-ui, sans-serif; display: flex; overflow: hidden">
+
+<aside style="width: 232px; flex: 0 0 232px; background: #FFFFFF; border-right: 1px solid #DDE1E7; padding: 20px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; padding: 4px 10px 20px"><span style="width: 26px; height: 18px; border-radius: 4px; background: {{accent}}; display: inline-block"></span>Card Wallet</div>
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="5">
+<a href="{{n.href}}" style="{{n.style}}">{{n.label}}</a>
+</sc-for>
+<div style="flex: 1"></div>
+<div style="border-top: 1px solid #DDE1E7; padding: 14px 10px 0; font-size: 13px; color: #4A5361">[Name]<br>[email]</div>
+</aside>
+
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+<main style="flex: 1; min-height: 0; padding: 28px 32px 0; display: flex; flex-direction: column; gap: 16px; overflow: hidden">
+<div style="display: flex; justify-content: space-between; align-items: flex-end">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em">Card catalog</h1>
+<div style="font-size: 14px; color: #4A5361; margin-top: 4px">[N] US cards · fees from CFPB TCCP Jul–Dec 2025 · rewards refreshed every Sunday</div></div>
+<div style="display: flex; gap: 10px; align-items: center">
+<div style="width: 320px; border: 1px solid #C3C9D2; border-radius: 10px; background: #FFFFFF; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: #4A5361">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<label for="cq" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search cards</label>
+<input id="cq" type="search" placeholder="Search card or issuer" style="flex: 1; border: 0; outline: none; background: transparent; min-height: 42px; font: 400 15px 'IBM Plex Sans', system-ui, sans-serif; color: #14181F">
+</div>
+</div>
+</div>
+
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button type="button" style="min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid {{accent}}; background: #E6F1F1; color: #084F53; font: 600 13px 'IBM Plex Sans', system-ui, sans-serif">$0 annual fee</button>
+<button type="button" style="min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #DDE1E7; background: #FFFFFF; color: #14181F; font: 500 13px 'IBM Plex Sans', system-ui, sans-serif">No FX fee</button>
+<button type="button" style="min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #DDE1E7; background: #FFFFFF; color: #14181F; font: 500 13px 'IBM Plex Sans', system-ui, sans-serif">Cashback</button>
+<button type="button" style="min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #DDE1E7; background: #FFFFFF; color: #14181F; font: 500 13px 'IBM Plex Sans', system-ui, sans-serif">Travel</button>
+<button type="button" style="min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid #DDE1E7; background: #FFFFFF; color: #14181F; font: 500 13px 'IBM Plex Sans', system-ui, sans-serif">Credit score: 720+</button>
+</div>
+
+<div style="flex: 1; min-height: 0; background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 14px; overflow: hidden">
+<table style="width: 100%; border-collapse: collapse">
+<thead><tr>
+<th style="text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4A5361; padding: 12px 14px; border-bottom: 1px solid #DDE1E7; background: #F9FAFB; width: 56px">Compare</th><th style="text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4A5361; padding: 12px 14px; border-bottom: 1px solid #DDE1E7; background: #F9FAFB">Card</th><th style="text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4A5361; padding: 12px 14px; border-bottom: 1px solid #DDE1E7; background: #F9FAFB">Annual fee</th><th style="text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4A5361; padding: 12px 14px; border-bottom: 1px solid #DDE1E7; background: #F9FAFB">FX fee</th><th style="text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4A5361; padding: 12px 14px; border-bottom: 1px solid #DDE1E7; background: #F9FAFB">Purchase APR</th><th style="text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4A5361; padding: 12px 14px; border-bottom: 1px solid #DDE1E7; background: #F9FAFB">Top earn rate</th><th style="text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4A5361; padding: 12px 14px; border-bottom: 1px solid #DDE1E7; background: #F9FAFB">Rewards checked</th><th style="text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #4A5361; padding: 12px 14px; border-bottom: 1px solid #DDE1E7; background: #F9FAFB"></th>
+</tr></thead>
+<tbody>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="7">
+<tr style="background: {{r.bg}}">
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEF0F3; font-size: 14px; vertical-align: middle"><input type="checkbox" aria-label="Compare {{r.name}}" checked="{{r.on}}" onChange="{{r.flip}}" style="width: 20px; height: 20px; accent-color: #0B6E73"></td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEF0F3; font-size: 14px; vertical-align: middle"><div style="display: flex; align-items: center; gap: 12px"><span style="width: 44px; height: 28px; border-radius: 4px; background: {{r.art}}; display: inline-block"></span><div><div style="font-weight: 600">{{r.name}}</div><div style="font-size: 12px; color: #4A5361">{{r.issuer}}</div></div></div></td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEF0F3; font-size: 14px; vertical-align: middle">{{r.fee}}</td><td style="padding: 12px 14px; border-bottom: 1px solid #EEF0F3; font-size: 14px; vertical-align: middle">{{r.fx}}</td><td style="padding: 12px 14px; border-bottom: 1px solid #EEF0F3; font-size: 14px; vertical-align: middle">[X%–Y%]</td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEF0F3; font-size: 14px; vertical-align: middle"><strong>{{r.top}}</strong> <span style="color: #4A5361">{{r.topCat}}</span></td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEF0F3; font-size: 14px; vertical-align: middle; color: #4A5361; font-size: 13px">[date] · <a href="#">source</a></td>
+<td style="padding: 12px 14px; border-bottom: 1px solid #EEF0F3; font-size: 14px; vertical-align: middle; text-align: right"><button type="button" style="{{r.addStyle}}">{{r.addLabel}}</button></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</main>
+
+<div style="margin: 16px 32px 20px; background: #14181F; color: #FFFFFF; border-radius: 14px; padding: 12px 12px 12px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+<span style="font-size: 15px"><strong>{{picked}}</strong> of 3 selected to compare · {{pickedNames}}</span>
+<a href="Compare.dc.html" style="min-height: 44px; padding: 0 20px; border-radius: 10px; background: #FFFFFF; color: #14181F; font-weight: 600; font-size: 14px; text-decoration: none; display: flex; align-items: center">Compare side by side</a>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0B6E73","options":["#0B6E73","#1F4FA3","#14181F"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { picked: ['A', 'B'] }; }
+renderVals() {
+const accent = this.props.accent ?? '#0B6E73';
+const data = [
+['A','#7A2E3A','[$X]','None','4x','dining',true],
+['B','#2F5D3A','$0','3%','6%','groceries',true],
+['E','#3B3F6B','$0','None','2%','everything',false],
+['F','#6B2F3A','[$X]','None','5x','travel',false],
+['G','#4F5B4A','$0','3%','3%','gas',false],
+['H','#2E4A52','$0','None','1.5%','everything',false],
+['I','#5A4632','[$X]','None','3x','dining',false]
+];
+const picked = this.state.picked;
+const rows = data.map(([k, art, fee, fx, top, topCat, owned]) => {
+const on = picked.includes(k);
+return {
+name: '[Card ' + k + ']', issuer: '[Issuer]', art, fee, fx, top, topCat: 'on ' + topCat, on,
+bg: on ? '#F3F9F9' : '#FFFFFF',
+flip: () => this.setState({ picked: on ? picked.filter(x => x !== k) : (picked.length < 3 ? [...picked, k] : picked) }),
+addLabel: owned ? 'In wallet' : '+ Add to wallet',
+addStyle: 'min-height: 38px; padding: 0 14px; border-radius: 8px; font: 600 13px \'IBM Plex Sans\', system-ui, sans-serif; ' + (owned ? 'border: 0; background: transparent; color: #4A5361;' : 'border: 1px solid ' + accent + '; background: #FFFFFF; color: #084F53;')
+};
+});
+const nav = [['Home','WebApp.dc.html',false],['My cards','Wallet.dc.html',false],['Offers & coupons','Offers.dc.html',false],['Card catalog','WebCatalog.dc.html',true],['Compare','Compare.dc.html',false]].map(([label, href, on]) => ({ label, href, style: 'min-height: 44px; padding: 0 12px; border-radius: 10px; display: flex; align-items: center; text-decoration: none; font-size: 15px; font-weight: ' + (on ? 600 : 500) + '; color: ' + (on ? '#084F53' : '#14181F') + '; background: ' + (on ? '#E6F1F1' : 'transparent') + ';' }));
+return { accent, rows, nav, picked: picked.length, pickedNames: picked.map(k => '[Card ' + k + ']').join(', ') || 'none' };
+}
+}
+</script>
+</body>
+</html>

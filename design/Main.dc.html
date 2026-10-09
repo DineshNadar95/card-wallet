@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card Wallet · Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B6E73}a:hover{color:#084F53}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F5F7; color: #14181F; font-family: 'IBM Plex Sans', 'Helvetica Neue', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #DDE1E7; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: #4A5361">Good evening, [Name]</span>
+<h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em">Which card should you use?</h1>
+</header>
+
+<main style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px">
+
+<button type="button" onClick="{{scan}}" style="min-height: 48px; border-radius: 12px; border: 1px dashed #9AA4B2; background: #FFFFFF; color: #4A5361; font: 600 14px 'IBM Plex Sans', system-ui, sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+Scan where I am · coming soon</button>
+
+<div>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #4A5361; margin: 0 2px 8px">Spending on</div>
+<div style="display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="6">
+<button type="button" onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="{{c.chip}}">{{c.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<section aria-label="Best card" style="background: {{best.bg}}; border-radius: 18px; padding: 18px; color: #FFFFFF; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 8px 24px rgba(20,24,31,0.18)">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 13px; font-weight: 600; opacity: 0.85">Best for {{sel}}</span>
+<span style="font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 999px">Top pick</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px">
+<div><div style="font-size: 20px; font-weight: 700">{{best.name}}</div><div style="font-size: 13px; opacity: 0.85">{{best.issuer}}</div></div>
+<div style="text-align: right"><div style="font-size: 30px; font-weight: 700; line-height: 1">{{best.rate}}</div><div style="font-size: 12px; opacity: 0.85">{{best.unit}}</div></div>
+</div>
+<div style="font-size: 13px; background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 10px">{{best.reason}}</div>
+<a href="Card.dc.html" style="min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #FFFFFF; color: #14181F; font-weight: 600; font-size: 14px; text-decoration: none">View card &amp; offers</a>
+</section>
+
+<div>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #4A5361; margin: 0 2px 8px">Other good options</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{others}}" as="o" hint-placeholder-count="2">
+<a href="Card.dc.html" style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: #14181F">
+<span style="width: 10px; height: 34px; border-radius: 4px; background: {{o.art}}; display: inline-block"></span>
+<div style="flex: 1; min-width: 0"><div style="font-weight: 600; font-size: 15px">{{o.name}}</div><div style="font-size: 13px; color: #4A5361">{{o.reason}}</div></div>
+<span style="font-size: 16px; font-weight: 700; color: #084F53">{{o.rate}}</span>
+</a>
+</sc-for>
+</div>
+</div>
+
+</main>
+
+<nav aria-label="Tabs" style="background: #FFFFFF; border-top: 1px solid #DDE1E7; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 4px 18px">
+<a href="Main.dc.html" aria-current="page" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{accent}}; font-size: 11px; font-weight: 600; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"></path><path d="M6 10v9h12v-9"></path></svg>Home</a>
+<a href="Wallet.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5"></rect><path d="M3 10h18"></path></svg>Cards</a>
+<a href="Offers.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 11 3.8H4v7l9.6 9.6a2 2 0 0 0 2.8 0l4.2-4.2a2 2 0 0 0 0-2.8z"></path><circle cx="7.5" cy="7.5" r="1.3"></circle></svg>Offers</a>
+<a href="Compare.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="1.5"></rect><rect x="14" y="4" width="7" height="16" rx="1.5"></rect></svg>Compare</a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0B6E73","options":["#0B6E73","#1F4FA3","#14181F"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { cat: 'dining' };
+}
+renderVals() {
+const accent = this.props.accent ?? '#0B6E73';
+const DATA = {
+dining:    { label: 'Dining', icon: '\u{1F37D}', bg: '#7A2E3A', sel: 'dining', best: { name: '[Card A]', issuer: '[Issuer]', rate: '4x', unit: 'points at restaurants', reason: 'Plus a personal offer: [10% back at Merchant], ends [date]' }, others: [ { name: '[Card B]', reason: '3% cashback on dining', rate: '3%', art: '#2E4A52' }, { name: '[Card C]', reason: '2x points everywhere', rate: '2x', art: '#5A4632' } ] },
+    groceries: { label: 'Groceries', icon: '\u{1F6D2}', bg: '#2F5D3A', sel: 'groceries', best: { name: '[Card B]', issuer: '[Issuer]', rate: '6%', unit: 'cashback at supermarkets', reason: 'Up to [$6,000] per year, then 1%' }, others: [ { name: '[Card A]', reason: '2x points everywhere', rate: '2x', art: '#7A2E3A' }, { name: '[Card C]', reason: '1.5% flat cashback', rate: '1.5%', art: '#5A4632' } ] },
+    travel:    { label: 'Travel', icon: '\u{2708}', bg: '#1F3A6B', sel: 'travel', best: { name: '[Card C]', issuer: '[Issuer]', rate: '5x', unit: 'miles on travel', reason: 'No foreign transaction fee on this card' }, others: [ { name: '[Card A]', reason: '3x points on travel', rate: '3x', art: '#7A2E3A' }, { name: '[Card B]', reason: '2% back, no FX fee', rate: '2%', art: '#2E4A52' } ] },
+    gas:       { label: 'Gas', icon: '\u{26FD}', bg: '#5A4632', sel: 'gas', best: { name: '[Card A]', issuer: '[Issuer]', rate: '3%', unit: 'cashback at gas stations', reason: 'Best flat rate across your cards for fuel' }, others: [ { name: '[Card B]', reason: '2% back on gas', rate: '2%', art: '#2E4A52' }, { name: '[Card C]', reason: '1.5% flat cashback', rate: '1.5%', art: '#1F3A6B' } ] },
+    online:    { label: 'Online', icon: '\u{1F4BB}', bg: '#3B3F6B', sel: 'online shopping', best: { name: '[Card B]', issuer: '[Issuer]', rate: '5%', unit: 'at online retailers', reason: 'Rotating category active this quarter' }, others: [ { name: '[Card C]', reason: '2x points everywhere', rate: '2x', art: '#1F3A6B' }, { name: '[Card A]', reason: '1.5% flat cashback', rate: '1.5%', art: '#7A2E3A' } ] },
+    other:     { label: 'Everything else', icon: '\u{1F4B3}', bg: '#2E4A52', sel: 'everyday spend', best: { name: '[Card C]', issuer: '[Issuer]', rate: '2x', unit: 'points on all purchases', reason: 'Best catch-all rate across your wallet' }, others: [ { name: '[Card B]', reason: '1.5% flat cashback', rate: '1.5%', art: '#2F5D3A' }, { name: '[Card A]', reason: '1 point per $1', rate: '1x', art: '#7A2E3A' } ] }
+};
+const keys = ['dining','groceries','travel','gas','online','other'];
+const cur = DATA[this.state.cat] || DATA.dining;
+const cats = keys.map((k) => {
+const on = k === this.state.cat;
+const chip = 'flex: 0 0 auto; min-height: 40px; padding: 0 14px; border-radius: 999px; font: 600 14px \'IBM Plex Sans\', system-ui, sans-serif; cursor: pointer; border: 1px solid ' + (on ? accent : '#DDE1E7') + '; background: ' + (on ? '#E6F1F1' : '#FFFFFF') + '; color: ' + (on ? '#084F53' : '#14181F') + ';';
+return { label: DATA[k].label, icon: DATA[k].icon, on, chip, pick: () => this.setState({ cat: k }) };
+});
+return { accent, cats, sel: cur.sel, best: cur.best, others: cur.others, scan: () => {} };
+}
+}
+</script>
+</body>
+</html>

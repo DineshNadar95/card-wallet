@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card Wallet · Landing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B6E73}a:hover{color:#084F53}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; box-sizing: border-box; background: #F4F5F7; color: #14181F; font-family: 'IBM Plex Sans', 'Helvetica Neue', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="height: 72px; padding: 0 64px; display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border-bottom: 1px solid #DDE1E7">
+<div style="display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px"><span style="width: 28px; height: 19px; border-radius: 4px; background: {{accent}}; display: inline-block"></span>Card Wallet</div>
+<nav style="display: flex; align-items: center; gap: 28px; font-size: 15px">
+<a href="#how" style="color: #4A5361; text-decoration: none">How it's built</a>
+<a href="WebCatalog.dc.html" style="color: #4A5361; text-decoration: none">Card catalog</a>
+<a href="WebApp.dc.html" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: 1px solid #DDE1E7; color: #14181F; font-weight: 600; text-decoration: none; display: flex; align-items: center">Sign in</a>
+</nav>
+</header>
+
+<main style="flex: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 64px; padding: 72px 64px 40px; align-items: center">
+<div style="display: flex; flex-direction: column; gap: 24px">
+<span style="align-self: flex-start; font-size: 13px; font-weight: 600; color: #084F53; background: #E6F1F1; padding: 6px 12px; border-radius: 999px">Free · works on phone and desktop</span>
+<h1 style="margin: 0; font-size: 56px; line-height: 1.05; font-weight: 700; letter-spacing: -0.025em">Know which card to use.<br>Never miss a coupon.</h1>
+<p style="margin: 0; font-size: 19px; line-height: 1.55; color: #4A5361; max-width: 560px">Add the cards you already own. Pick what you're buying, and Card Wallet tells you which card earns the most. Snap a photo of any offer or coupon and get reminded before it expires.</p>
+<div style="display: flex; gap: 12px">
+<a href="WebApp.dc.html" style="min-height: 52px; padding: 0 24px; border-radius: 12px; background: {{accent}}; color: #FFFFFF; font-weight: 600; font-size: 16px; text-decoration: none; display: flex; align-items: center">Try the demo — no sign-up</a>
+<a href="WebApp.dc.html" style="min-height: 52px; padding: 0 22px; border-radius: 12px; border: 1px solid #C3C9D2; background: #FFFFFF; color: #14181F; font-weight: 600; font-size: 16px; text-decoration: none; display: flex; align-items: center; gap: 10px">
+Continue with Google</a>
+</div>
+<p style="margin: 0; font-size: 13px; color: #4A5361">We never ask for card numbers or bank logins. Only the last 4 digits, so you can tell your cards apart.</p>
+</div>
+
+<div style="display: flex; justify-content: center">
+<div style="width: 340px; border-radius: 36px; background: #14181F; padding: 12px; box-shadow: 0 30px 60px rgba(20,24,31,0.22)">
+<div style="border-radius: 26px; background: #F4F5F7; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 18px; font-weight: 700">Which card should you use?</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<span style="font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 999px; border: 1px solid {{accent}}; background: #E6F1F1; color: #084F53">Dining</span>
+<span style="font-size: 12px; padding: 6px 10px; border-radius: 999px; border: 1px solid #DDE1E7; background: #FFFFFF">Groceries</span>
+<span style="font-size: 12px; padding: 6px 10px; border-radius: 999px; border: 1px solid #DDE1E7; background: #FFFFFF">Travel</span>
+</div>
+<div style="border-radius: 16px; background: #7A2E3A; color: #FFFFFF; padding: 16px; display: flex; justify-content: space-between; align-items: flex-end">
+<div><div style="font-size: 12px; opacity: 0.85">Best for dining</div><div style="font-size: 18px; font-weight: 700">[Demo Card A]</div></div>
+<div style="font-size: 28px; font-weight: 700">4x</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; font-size: 13px"><span><strong>[Phone carrier]</strong> · $100 off</span><span style="color: #A3261E; font-weight: 600">4 days left</span></div>
+</div>
+</div>
+</div>
+</main>
+
+<section id="how" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; padding: 0 64px 48px">
+<div style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 16px; padding: 22px"><div style="font-weight: 700; font-size: 16px; margin-bottom: 6px">Best card, per purchase</div><div style="font-size: 14px; color: #4A5361; line-height: 1.5">Ranks only the cards you own, using each card's category earn rates.</div></div>
+<div style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 16px; padding: 22px"><div style="font-weight: 700; font-size: 16px; margin-bottom: 6px">Offers &amp; coupons, from a photo</div><div style="font-size: 14px; color: #4A5361; line-height: 1.5">AI reads merchant, value and expiry. You confirm, then get reminded 3, 5 or 7 days before.</div></div>
+<div style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 16px; padding: 22px"><div style="font-weight: 700; font-size: 16px; margin-bottom: 6px">Sourced, refreshed weekly</div><div style="font-size: 14px; color: #4A5361; line-height: 1.5">Fees from CFPB data. Rewards pulled from issuer pages every Sunday, each with its source and date.</div></div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0B6E73","options":["#0B6E73","#1F4FA3","#14181F"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() { return { accent: this.props.accent ?? '#0B6E73' }; }
+}
+</script>
+</body>
+</html>

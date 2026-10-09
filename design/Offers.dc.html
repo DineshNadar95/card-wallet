@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card Wallet · My offers</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B6E73}a:hover{color:#084F53}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F5F7; color: #14181F; font-family: 'IBM Plex Sans', 'Helvetica Neue', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #DDE1E7; padding: 16px 16px 12px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em">Offers &amp; coupons</h1>
+<a href="AddOffer.dc.html" style="min-height: 44px; padding: 0 14px; border-radius: 10px; background: {{accent}}; color: #FFFFFF; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; text-decoration: none">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add offer</a>
+</div>
+<div role="tablist" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #EEF0F3; border-radius: 10px; padding: 3px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+<button type="button" role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button>
+</sc-for>
+</div>
+</header>
+
+<main style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{offers}}" as="o" hint-placeholder-count="4">
+<article style="background: #FFFFFF; border: 1px solid #DDE1E7; border-left: 4px solid {{o.art}}; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline">
+<span style="font-weight: 700; font-size: 16px">{{o.merchant}}</span>
+<span style="font-weight: 700; font-size: 16px; color: #8A3F0E">{{o.value}}</span>
+</div>
+<div style="font-size: 13px; color: #4A5361">{{o.detail}}</div>
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #4A5361">
+<span>{{o.card}} · <span style="{{o.dueStyle}}">{{o.due}}</span></span>
+<span style="padding: 3px 8px; border-radius: 6px; background: #F4F5F7; border: 1px solid #DDE1E7">{{o.source}}</span>
+</div>
+</article>
+</sc-for>
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}"><p style="margin: 24px 0; text-align: center; color: #4A5361; font-size: 14px">Nothing here.</p></sc-if>
+</main>
+
+<nav aria-label="Tabs" style="background: #FFFFFF; border-top: 1px solid #DDE1E7; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 4px 18px">
+<a href="Main.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"></path><path d="M6 10v9h12v-9"></path></svg>Home</a>
+<a href="Wallet.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5"></rect><path d="M3 10h18"></path></svg>Cards</a>
+<a href="Offers.dc.html" aria-current="page" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{accent}}; font-size: 11px; font-weight: 600; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 11 3.8H4v7l9.6 9.6a2 2 0 0 0 2.8 0l4.2-4.2a2 2 0 0 0 0-2.8z"></path><circle cx="7.5" cy="7.5" r="1.3"></circle></svg>Offers</a>
+<a href="Compare.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="1.5"></rect><rect x="14" y="4" width="7" height="16" rx="1.5"></rect></svg>Compare</a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0B6E73","options":["#0B6E73","#1F4FA3","#14181F"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) { super(props); this.state = { tab: 'active' }; }
+renderVals() {
+const accent = this.props.accent ?? '#0B6E73';
+const all = [
+{ s: 'soon', merchant: '[Phone carrier]', value: '$100 off', detail: 'Upgrade coupon · code saved from photo', card: 'Coupon · no card', art: '#9AA4B2', due: 'Ends in 4 days', source: 'Screenshot' },
+{ s: 'active', merchant: '[Clothing store]', value: '25% off', detail: 'In-store or online, one use', card: 'Coupon · no card', art: '#9AA4B2', due: 'Ends [date]', source: 'Typed' },
+{ s: 'soon', merchant: '[Merchant 1]', value: '10% back', detail: 'Spend $50+, up to $15 back', card: '[Card A]', art: '#7A2E3A', due: 'Ends in 3 days', source: 'Screenshot' },
+{ s: 'active', merchant: '[Merchant 2]', value: '$20 off', detail: 'One purchase of $100 or more', card: '[Card D]', art: '#5A4632', due: 'Ends [date]', source: 'Typed' },
+{ s: 'active', merchant: 'Dining credit', value: '$10 / mo', detail: 'Built-in card benefit at select restaurants', card: '[Card A]', art: '#7A2E3A', due: 'Resets monthly', source: 'Card benefit' },
+{ s: 'soon', merchant: '[Merchant 3]', value: '5x pts', detail: 'Activated offer, max 2,500 pts', card: '[Card B]', art: '#2F5D3A', due: 'Ends in 6 days', source: 'Screenshot' },
+{ s: 'expired', merchant: '[Merchant 4]', value: '$15 off', detail: 'Used on [date]', card: '[Card A]', art: '#7A2E3A', due: 'Expired', source: 'Typed' }
+];
+const pick = this.state.tab;
+const offers = all.filter(o => pick === 'active' ? o.s !== 'expired' : o.s === pick).map(o => ({ ...o, dueStyle: o.s === 'soon' ? 'color: #A3261E; font-weight: 600' : '' }));
+const tabs = [['active','Active'],['soon','Ending soon'],['expired','Expired']].map(([k, label]) => {
+const on = k === pick;
+return { label, on, pick: () => this.setState({ tab: k }), style: 'min-height: 38px; border: 0; border-radius: 8px; cursor: pointer; font: ' + (on ? 600 : 500) + " 13px 'IBM Plex Sans', system-ui, sans-serif; background: " + (on ? '#FFFFFF' : 'transparent') + '; color: ' + (on ? '#14181F' : '#4A5361') + '; box-shadow: ' + (on ? '0 1px 2px rgba(20,24,31,0.12)' : 'none') + ';' };
+});
+return { accent, tabs, offers, empty: offers.length === 0 };
+}
+}
+</script>
+</body>
+</html>

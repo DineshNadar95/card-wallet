@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Card Wallet · My cards</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B6E73}a:hover{color:#084F53}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F4F5F7; color: #14181F; font-family: 'IBM Plex Sans', 'Helvetica Neue', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #DDE1E7; padding: 16px 16px 14px; display: flex; align-items: center; justify-content: space-between">
+<div><h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em">My cards</h1>
+<div style="font-size: 13px; color: #4A5361; margin-top: 2px">[N] cards · [N] active offers</div></div>
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 0; background: {{accent}}; color: #FFFFFF; font: 600 14px 'IBM Plex Sans', system-ui, sans-serif; display: flex; align-items: center; gap: 6px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Add card</button>
+</header>
+
+<main style="flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="4">
+<a href="Card.dc.html" style="background: #FFFFFF; border: 1px solid #DDE1E7; border-radius: 16px; overflow: hidden; text-decoration: none; color: #14181F; display: flex; flex-direction: column">
+<div style="background: {{c.art}}; color: #FFFFFF; padding: 14px 16px; display: flex; justify-content: space-between; align-items: flex-end; min-height: 64px; box-sizing: border-box">
+<div><div style="font-size: 17px; font-weight: 700">{{c.name}}</div><div style="font-size: 12px; opacity: 0.8">{{c.issuer}} · •••• {{c.last4}}</div></div>
+<sc-if value="{{c.hasOffers}}" hint-placeholder-val="{{ true }}"><span style="font-size: 12px; font-weight: 600; background: #FCEFE4; color: #8A3F0E; padding: 4px 9px; border-radius: 999px">{{c.offers}}</span></sc-if>
+</div>
+<div style="padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{c.earn}}" as="e" hint-placeholder-count="3">
+<span style="font-size: 12px; padding: 5px 9px; border-radius: 8px; background: #F4F5F7; border: 1px solid #DDE1E7"><strong style="font-weight: 700">{{e.rate}}</strong> {{e.cat}}</span>
+</sc-for>
+</div>
+</a>
+</sc-for>
+
+<div style="border: 1px dashed #9AA4B2; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px; background: #FFFFFF">
+<div style="font-weight: 600; font-size: 15px">Add from [N] US cards</div>
+<div style="font-size: 13px; color: #4A5361; line-height: 1.5">Search by name. Fees, APRs and base rewards fill in automatically. We never ask for your full card number — only the last 4, so you can tell cards apart.</div>
+</div>
+
+<p style="margin: 0; font-size: 12px; color: #4A5361; line-height: 1.5">Base terms: CFPB TCCP Jul–Dec 2025 · Reward rates checked [DATE]</p>
+</main>
+
+<nav aria-label="Tabs" style="background: #FFFFFF; border-top: 1px solid #DDE1E7; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 6px 4px 18px">
+<a href="Main.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7"></path><path d="M6 10v9h12v-9"></path></svg>Home</a>
+<a href="Wallet.dc.html" aria-current="page" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: {{accent}}; font-size: 11px; font-weight: 600; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5"></rect><path d="M3 10h18"></path></svg>Cards</a>
+<a href="Offers.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 11 3.8H4v7l9.6 9.6a2 2 0 0 0 2.8 0l4.2-4.2a2 2 0 0 0 0-2.8z"></path><circle cx="7.5" cy="7.5" r="1.3"></circle></svg>Offers</a>
+<a href="Compare.dc.html" style="min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: #4A5361; font-size: 11px; font-weight: 500; text-decoration: none">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="7" height="16" rx="1.5"></rect><rect x="14" y="4" width="7" height="16" rx="1.5"></rect></svg>Compare</a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0B6E73","options":["#0B6E73","#1F4FA3","#14181F"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const cards = [
+{ name: '[Card A]', issuer: '[Issuer]', last4: '1234', art: '#7A2E3A', offers: '3 offers', hasOffers: true, earn: [ { rate: '4x', cat: 'Dining' }, { rate: '3x', cat: 'Travel' }, { rate: '1x', cat: 'Other' } ] },
+{ name: '[Card B]', issuer: '[Issuer]', last4: '5678', art: '#2F5D3A', offers: '1 offer', hasOffers: true, earn: [ { rate: '6%', cat: 'Groceries' }, { rate: '5%', cat: 'Online' }, { rate: '1%', cat: 'Other' } ] },
+{ name: '[Card C]', issuer: '[Issuer]', last4: '9012', art: '#1F3A6B', offers: '', hasOffers: false, earn: [ { rate: '5x', cat: 'Travel' }, { rate: '2x', cat: 'Everything' } ] },
+{ name: '[Card D]', issuer: '[Issuer]', last4: '3456', art: '#5A4632', offers: '2 offers', hasOffers: true, earn: [ { rate: '3%', cat: 'Gas' }, { rate: '1.5%', cat: 'Other' } ] }
+];
+return { accent: this.props.accent ?? '#0B6E73', cards };
+}
+}
+</script>
+</body>
+</html>

@@ -2,6 +2,8 @@ import { useHealth } from "@card-wallet/shared";
 import type { ReactNode } from "react";
 import { Link, NavLink, Outlet } from "react-router";
 
+import { useAuth } from "../auth";
+import { GoogleButton } from "../components/SignIn";
 import { Logo } from "./Logo";
 
 type NavItem = { to: string; label: string; short: string; icon: ReactNode; tab: boolean };
@@ -96,6 +98,21 @@ function ApiStatus() {
   );
 }
 
+function Account() {
+  const { session, signOut } = useAuth();
+  if (!session) return <GoogleButton next="/app/cards" className="btn btn-outline btn-block">Sign in</GoogleButton>;
+  const meta = session.user.user_metadata as { full_name?: string; name?: string };
+  return (
+    <div className="account">
+      <div className="strong">{meta.full_name ?? meta.name ?? "Signed in"}</div>
+      <div className="account-email">{session.user.email}</div>
+      <button type="button" className="link-button" onClick={signOut}>
+        Sign out
+      </button>
+    </div>
+  );
+}
+
 export function AppShell() {
   return (
     <div className="shell">
@@ -112,6 +129,7 @@ export function AppShell() {
           ))}
         </nav>
         <div className="side-foot">
+          <Account />
           <ApiStatus />
         </div>
       </aside>

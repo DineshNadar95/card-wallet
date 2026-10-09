@@ -4,6 +4,7 @@ from fastapi.routing import APIRoute
 from pydantic import BaseModel
 
 from app.config import get_settings
+from app.routers import catalog, me
 
 
 def _operation_id(route: APIRoute) -> str:
@@ -35,3 +36,7 @@ class Health(BaseModel):
 @app.get("/health", response_model=Health, tags=["meta"])
 def health() -> Health:
     return Health(status="ok", version=app.version)
+
+
+app.include_router(catalog.router)
+app.include_router(me.router)

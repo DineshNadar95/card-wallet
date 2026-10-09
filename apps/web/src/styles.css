@@ -429,3 +429,467 @@ a:hover {
     font-weight: 600;
   }
 }
+
+/* ---------- Phase 2: shared ---------- */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.strong {
+  font-weight: 600;
+}
+.small {
+  font-size: 13px;
+}
+.error {
+  color: var(--urgent);
+  font-size: 14px;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+button.btn {
+  font-family: inherit;
+}
+.btn-small {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  color: var(--accent-dark);
+  background: var(--surface);
+}
+.btn-small:hover {
+  background: var(--accent-tint);
+}
+.btn-block {
+  width: 100%;
+}
+.btn-danger {
+  background: var(--surface);
+  color: var(--urgent);
+  border: 1px solid #e8c4c1;
+}
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: 32px;
+  color: var(--accent);
+  font: 600 13px var(--font);
+  cursor: pointer;
+}
+.page-wide {
+  max-width: 1200px;
+}
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.page-sub {
+  font-size: 14px;
+  color: var(--text-2);
+  margin-top: 4px;
+}
+.source-note {
+  margin: 4px 2px 0;
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 520px;
+}
+.prompt p {
+  margin: 0;
+}
+.prompt-title {
+  font-weight: 700;
+  font-size: 18px;
+}
+.inline-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+}
+.account {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.account-email {
+  font-size: 12px;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+.side-foot .btn-block {
+  margin-bottom: 10px;
+}
+
+/* ---------- catalog ---------- */
+
+.search {
+  width: min(320px, 100%);
+  border: 1px solid #c3c9d2;
+  border-radius: 10px;
+  background: var(--surface);
+  display: flex;
+  padding: 0 12px;
+}
+.search input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  min-height: 42px;
+  font: 400 15px var(--font);
+  color: var(--text);
+}
+.search:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-tint);
+}
+.filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filter {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: 500 13px var(--font);
+  cursor: pointer;
+}
+.filter.on {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.table-wrap[aria-busy="true"] tbody {
+  opacity: 0.6;
+}
+table.catalog {
+  width: 100%;
+  border-collapse: collapse;
+}
+.catalog th {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: #f9fafb;
+}
+.catalog td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 14px;
+  vertical-align: middle;
+}
+.catalog tr.owned {
+  background: #f3f9f9;
+}
+.card-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.art {
+  width: 44px;
+  height: 28px;
+  border-radius: 4px;
+  flex: 0 0 auto;
+}
+.actions {
+  text-align: right;
+  white-space: nowrap;
+}
+.in-wallet {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--better-text);
+  margin-top: 4px;
+}
+.table-empty {
+  padding: 28px;
+  text-align: center;
+  color: var(--text-2);
+}
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* ---------- add-card dialog ---------- */
+
+.dialog {
+  border: 0;
+  border-radius: 18px;
+  padding: 22px;
+  width: min(420px, calc(100vw - 32px));
+  box-shadow: 0 30px 60px rgba(20, 24, 31, 0.25);
+  font-family: var(--font);
+  color: var(--text);
+}
+.dialog::backdrop {
+  background: rgba(20, 24, 31, 0.45);
+}
+.dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dialog-card {
+  color: #fff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.dialog-title {
+  margin: 0;
+  font-size: 18px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.field input {
+  min-height: var(--touch);
+  border: 1px solid #c3c9d2;
+  border-radius: 10px;
+  padding: 0 12px;
+  font: 400 16px var(--font);
+}
+.field input[aria-invalid="true"] {
+  border-color: var(--urgent);
+}
+.field small {
+  font-weight: 400;
+  font-size: 12px;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ---------- my cards ---------- */
+
+.wallet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.wallet-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+.wallet-card:hover {
+  color: var(--text);
+  border-color: #c3c9d2;
+}
+.wallet-art {
+  color: #fff;
+  padding: 14px 16px;
+  min-height: 72px;
+  display: flex;
+  align-items: flex-end;
+}
+.wallet-name {
+  font-size: 17px;
+  font-weight: 700;
+}
+.wallet-meta {
+  font-size: 12px;
+  opacity: 0.85;
+}
+.earn-chips {
+  padding: 12px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.earn-chip {
+  font-size: 12px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: var(--ground);
+  border: 1px solid var(--border);
+}
+.add-tile {
+  border: 1px dashed #9aa4b2;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1.5;
+}
+.add-tile:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+/* ---------- card detail ---------- */
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.detail-main,
+.detail-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.back {
+  font-weight: 600;
+  text-decoration: none;
+  min-height: var(--touch);
+  display: inline-flex;
+  align-items: center;
+}
+.big-card {
+  aspect-ratio: 1.586;
+  max-width: 400px;
+  border-radius: 16px;
+  color: #fff;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(20, 24, 31, 0.2);
+}
+.big-card-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  opacity: 0.85;
+  gap: 12px;
+}
+.chip-gold {
+  width: 40px;
+  height: 30px;
+  border-radius: 5px;
+  background: #d9c08a;
+}
+.big-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+.big-card-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+.big-card-num {
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin: 0 2px 8px;
+}
+.list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.list-row:last-child {
+  border-bottom: 0;
+}
+.list-row .strong {
+  text-align: right;
+}
+.rate {
+  font-size: 16px;
+  color: var(--accent-dark);
+}
+.detail-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 767px) {
+  .catalog .wide {
+    display: none;
+  }
+  .search {
+    width: 100%;
+  }
+  .detail {
+    grid-template-columns: 1fr;
+  }
+  .wallet-grid {
+    grid-template-columns: 1fr;
+  }
+}

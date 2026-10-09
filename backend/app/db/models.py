@@ -10,6 +10,7 @@ from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    Boolean,
     Date,
     DateTime,
     Enum,
@@ -24,7 +25,7 @@ from sqlalchemy import (
     Uuid,
     func,
 )
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 # Deterministic constraint names so migrations are stable across databases.
 NAMING = {
@@ -101,16 +102,28 @@ class Card(Base):
     issuer: Mapped[str] = mapped_column(String(200), index=True)
     name: Mapped[str] = mapped_column(String(300), index=True)
     network: Mapped[str | None] = mapped_column(String(50))
+    # Dollars. APRs and the FX fee are percentages (13.9 means 13.9%).
     annual_fee: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
     purchase_apr_min: Mapped[Decimal | None] = mapped_column(Numeric(6, 3))
     purchase_apr_max: Mapped[Decimal | None] = mapped_column(Numeric(6, 3))
     fx_fee: Mapped[Decimal | None] = mapped_column(Numeric(6, 3))
     late_fee: Mapped[Decimal | None] = mapped_column(Numeric(10, 2))
-    cash_advance_apr: Mapped[Decimal | None] = mapped_column(Numeric(6, 3))
+    cash_advance_apr_min: Mapped[Decimal | None] = mapped_column(Numeric(6, 3))
+    cash_advance_apr_max: Mapped[Decimal | None] = mapped_column(Numeric(6, 3))
+    secured: Mapped[bool | None] = mapped_column(Boolean)
+    credit_tiers: Mapped[str | None] = mapped_column(Text)  # TCCP "Targeted Credit Tiers"
+    rewards_types: Mapped[str | None] = mapped_column(Text)  # TCCP "Rewards", "; "-separated
+    availability: Mapped[str | None] = mapped_column(String(100))  # National / state-only
+    website: Mapped[str | None] = mapped_column(Text)  # as reported to CFPB
     product_url: Mapped[str | None] = mapped_column(Text)  # issuer page, used by the scraper
-    source: Mapped[str] = mapped_column(String(200))  # e.g. "CFPB TCCP"
+    source: Mapped[str] = mapped_column(String(200))  # e.g. "CFPB TCCP Jul–Dec 2025"
+    source_url: Mapped[str | None] = mapped_column(Text)
     as_of: Mapped[date] = mapped_column(Date)
     created_at: Mapped[datetime] = _now()
+
+    earn_rates: Mapped[list["CardEarnRate"]] = relationship(
+        order_by="CardEarnRate.category", lazy="selectin", viewonly=True
+    )
 
     __table_args__ = (UniqueConstraint("issuer", "name", name="uq_cards_issuer_name"),)
 
@@ -200,6 +213,8 @@ class UserCard(Base):
     last4: Mapped[str | None] = mapped_column(String(4))
     nickname: Mapped[str | None] = mapped_column(String(100))
     created_at: Mapped[datetime] = _now()
+
+    card: Mapped[Card] = relationship(lazy="joined")
 
 
 class Offer(Base):

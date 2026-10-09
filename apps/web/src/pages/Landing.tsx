@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 
+import { GoogleButton } from "../components/SignIn";
 import { Logo } from "../layout/Logo";
 
 const FEATURES = [
@@ -32,10 +33,7 @@ export function Landing() {
           <Link to="/app/catalog" className="hide-sm">
             Card catalog
           </Link>
-          {/* Google sign-in is wired in Phase 2. */}
-          <Link to="/app" className="btn btn-outline">
-            Sign in
-          </Link>
+          <GoogleButton next="/app/cards">Sign in</GoogleButton>
         </nav>
       </header>
 
@@ -56,9 +54,7 @@ export function Landing() {
             <Link to="/app" className="btn btn-primary btn-lg">
               Try the demo — no sign-up
             </Link>
-            <Link to="/app" className="btn btn-outline btn-lg">
-              Continue with Google
-            </Link>
+            <GoogleButton next="/app/cards" className="btn btn-outline btn-lg" />
           </div>
           <p className="fine">
             We never ask for card numbers or bank logins. Only the last 4 digits, so you can tell

@@ -21,16 +21,293 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/catalog/cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Catalog Cards */
+        get: operations["list_catalog_cards"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/catalog/cards/{card_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Catalog Card */
+        get: operations["get_catalog_card"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Me */
+        get: operations["get_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List My Cards */
+        get: operations["list_my_cards"];
+        put?: never;
+        /** Add My Card */
+        post: operations["add_my_card"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/cards/{user_card_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Card */
+        get: operations["get_my_card"];
+        put?: never;
+        post?: never;
+        /** Remove My Card */
+        delete: operations["remove_my_card"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** CardDetail */
+        CardDetail: {
+            /** Id */
+            id: number;
+            /** Issuer */
+            issuer: string;
+            /** Name */
+            name: string;
+            /** Network */
+            network: string | null;
+            /** Annual Fee */
+            annual_fee: number | null;
+            /** Fx Fee */
+            fx_fee: number | null;
+            /** Purchase Apr Min */
+            purchase_apr_min: number | null;
+            /** Purchase Apr Max */
+            purchase_apr_max: number | null;
+            /** Rewards Types */
+            rewards_types: string | null;
+            /** Credit Tiers */
+            credit_tiers: string | null;
+            /** Secured */
+            secured: boolean | null;
+            /** Source */
+            source: string;
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Earn Rates */
+            earn_rates: components["schemas"]["EarnRateOut"][];
+            /** Late Fee */
+            late_fee: number | null;
+            /** Cash Advance Apr Min */
+            cash_advance_apr_min: number | null;
+            /** Cash Advance Apr Max */
+            cash_advance_apr_max: number | null;
+            /** Availability */
+            availability: string | null;
+            /** Website */
+            website: string | null;
+            /** Source Url */
+            source_url: string | null;
+        };
+        /** CardSummary */
+        CardSummary: {
+            /** Id */
+            id: number;
+            /** Issuer */
+            issuer: string;
+            /** Name */
+            name: string;
+            /** Network */
+            network: string | null;
+            /** Annual Fee */
+            annual_fee: number | null;
+            /** Fx Fee */
+            fx_fee: number | null;
+            /** Purchase Apr Min */
+            purchase_apr_min: number | null;
+            /** Purchase Apr Max */
+            purchase_apr_max: number | null;
+            /** Rewards Types */
+            rewards_types: string | null;
+            /** Credit Tiers */
+            credit_tiers: string | null;
+            /** Secured */
+            secured: boolean | null;
+            /** Source */
+            source: string;
+            /**
+             * As Of
+             * Format: date
+             */
+            as_of: string;
+            /** Earn Rates */
+            earn_rates: components["schemas"]["EarnRateOut"][];
+        };
+        /** CatalogPage */
+        CatalogPage: {
+            /** Items */
+            items: components["schemas"]["CardSummary"][];
+            /** Total */
+            total: number;
+        };
+        /**
+         * Category
+         * @enum {string}
+         */
+        Category: "dining" | "groceries" | "travel" | "gas" | "online" | "other";
+        /** EarnRateOut */
+        EarnRateOut: {
+            category: components["schemas"]["Category"];
+            /** Rate */
+            rate: number;
+            unit: components["schemas"]["RateUnit"];
+            /** Annual Cap */
+            annual_cap: number | null;
+            /** Conditions */
+            conditions: string | null;
+            /** Source Url */
+            source_url: string;
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** Health */
         Health: {
             /** Status */
             status: string;
             /** Version */
             version: string;
+        };
+        /** Profile */
+        Profile: {
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /** Email */
+            email?: string | null;
+            /** Display Name */
+            display_name: string | null;
+            /** Point Value Cents */
+            point_value_cents: number;
+        };
+        /**
+         * RateUnit
+         * @enum {string}
+         */
+        RateUnit: "percent" | "points" | "miles";
+        /** UserCardCreate */
+        UserCardCreate: {
+            /** Card Id */
+            card_id: number;
+            /** Last4 */
+            last4?: string | null;
+            /** Nickname */
+            nickname?: string | null;
+        };
+        /** UserCardDetail */
+        UserCardDetail: {
+            /** Id */
+            id: number;
+            /** Card Id */
+            card_id: number;
+            /** Last4 */
+            last4: string | null;
+            /** Nickname */
+            nickname: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            card: components["schemas"]["CardDetail"];
+        };
+        /** UserCardOut */
+        UserCardOut: {
+            /** Id */
+            id: number;
+            /** Card Id */
+            card_id: number;
+            /** Last4 */
+            last4: string | null;
+            /** Nickname */
+            nickname: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            card: components["schemas"]["CardSummary"];
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+            /** Input */
+            input?: unknown;
+            /** Context */
+            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -57,6 +334,207 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    list_catalog_cards: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                no_annual_fee?: boolean;
+                no_fx_fee?: boolean;
+                rewards?: ("cashback" | "travel") | null;
+                credit_tier?: "excellent" | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_catalog_card: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                card_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+        };
+    };
+    list_my_cards: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserCardOut"][];
+                };
+            };
+        };
+    };
+    add_my_card: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserCardCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserCardOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_card: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_card_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserCardDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_my_card: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_card_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

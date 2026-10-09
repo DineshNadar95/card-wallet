@@ -12,6 +12,7 @@ import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 
 import { api } from "@/lib/api";
+import { AuthProvider } from "@/lib/auth";
 import { fonts } from "@/lib/theme";
 
 export default function RootLayout() {
@@ -27,18 +28,21 @@ export default function RootLayout() {
   return (
     <ApiProvider client={api}>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="dark" />
-        <Stack
-          screenOptions={{
-            headerTitleStyle: { fontFamily: fonts.semibold, color: colors.text },
-            headerTintColor: colors.accent,
-            contentStyle: { backgroundColor: colors.ground },
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="cards/[id]" options={{ title: "Card" }} />
-          <Stack.Screen name="offers/new" options={{ title: "Add an offer", presentation: "modal" }} />
-        </Stack>
+        <AuthProvider>
+          <StatusBar style="dark" />
+          <Stack
+            screenOptions={{
+              headerTitleStyle: { fontFamily: fonts.semibold, color: colors.text },
+              headerTintColor: colors.accent,
+              contentStyle: { backgroundColor: colors.ground },
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="cards/[id]" options={{ title: "Card" }} />
+            <Stack.Screen name="cards/add" options={{ title: "Add a card", presentation: "modal" }} />
+            <Stack.Screen name="offers/new" options={{ title: "Add an offer", presentation: "modal" }} />
+          </Stack>
+        </AuthProvider>
       </QueryClientProvider>
     </ApiProvider>
   );

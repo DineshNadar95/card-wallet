@@ -33,15 +33,36 @@ npm run typecheck    # all TS packages
 cd backend && uv run ruff check .
 ```
 
-## Database (Supabase)
+## Supabase setup (database + Google sign-in)
 
-1. Create a Supabase project and enable the Google auth provider.
-2. Put the Postgres connection string in `backend/.env` as `DATABASE_URL`
-   (`postgresql+psycopg://…`).
-3. `cd backend && uv run alembic upgrade head`
+1. Create a Supabase project.
+2. **Google sign-in:** create an OAuth client in Google Cloud Console (type "Web application"),
+   with the authorized redirect URI shown in Supabase → Authentication → Sign In / Providers → Google.
+   Paste the client ID and secret into that Supabase page and enable the provider.
+3. **Redirect URLs** (Supabase → Authentication → URL Configuration), add:
+   - `http://localhost:5173/**` and your deployed web URL + `/**`
+   - `cardwallet://auth/callback` (mobile builds)
+   - `exp://**` (Expo Go during development)
+4. **Env files** (copy each `.env.example` to `.env`):
+   - `backend/.env`: `DATABASE_URL` (Project Settings → Database → connection string, with the
+     `postgresql+psycopg://` prefix) and `SUPABASE_URL`. Only set `SUPABASE_JWT_SECRET` if the
+     project still uses the legacy JWT secret.
+   - `apps/web/.env`: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+   - `apps/mobile/.env`: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+
+   The anon / publishable key is public by design. The service-role key and JWT secret are not:
+   never put them in a client app.
+5. Create the tables and load the card catalog:
+
+```bash
+cd backend
+uv run alembic upgrade head
+uv run python -m app.catalog.tccp     # downloads the CFPB TCCP release and upserts ~657 cards
+```
 
 The initial migration creates every table in the data model and, on Supabase, turns on Row Level
 Security (owner-only policies on user tables, read-only on the catalog, none on internal tables).
+The importer is idempotent: rerun it when the CFPB publishes a new release (pass `--url`).
 
 After changing `backend/app/db/models.py`:
 
@@ -50,6 +71,12 @@ cd backend && uv run alembic revision --autogenerate -m "describe change"
 ```
 
 `tests/test_migrations.py` fails if the models and migrations drift apart.
+
+## Auth model
+
+Clients sign in with Supabase (Google) and send the access token as `Authorization: Bearer …`.
+The API verifies it against the project's JWKS (`app/auth.py`) and takes the user id only from
+the token. Every `/me/*` query filters by it; Row Level Security is a second layer.
 
 ## Shared API client
 

@@ -19,16 +19,38 @@ type AuthState = {
   configured: boolean;
   ready: boolean;
   session: Session | null;
+  /** Browsing the read-only demo (signed out, entered via "Try the demo"). */
+  demo: boolean;
+  startDemo: () => void;
+  endDemo: () => void;
   signInWithGoogle: (next?: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
 
+const DEMO_KEY = "card-wallet.demo";
+const readDemo = () => {
+  try {
+    return sessionStorage.getItem(DEMO_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+const writeDemo = (on: boolean) => {
+  try {
+    if (on) sessionStorage.setItem(DEMO_KEY, "1");
+    else sessionStorage.removeItem(DEMO_KEY);
+  } catch {
+    // private mode etc.: demo just won't survive a reload
+  }
+};
+
 export function AuthProvider({ children, client = supabase }: { children: ReactNode; client?: SupabaseClient | null }) {
   const queryClient = useQueryClient();
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(!client);
+  const [demoFlag, setDemoFlag] = useState(readDemo);
 
   useEffect(() => {
     if (!client) return;
@@ -40,6 +62,10 @@ export function AuthProvider({ children, client = supabase }: { children: ReactN
       setSession(s);
       // Never show one user's cached data to the next.
       if (event === "SIGNED_OUT" || event === "SIGNED_IN") queryClient.removeQueries({ queryKey: ["me"] });
+      if (event === "SIGNED_IN") {
+        writeDemo(false);
+        setDemoFlag(false);
+      }
     });
     return () => data.subscription.unsubscribe();
   }, [client, queryClient]);
@@ -49,6 +75,15 @@ export function AuthProvider({ children, client = supabase }: { children: ReactN
       configured: !!client,
       ready,
       session,
+      demo: demoFlag && !session,
+      startDemo() {
+        writeDemo(true);
+        setDemoFlag(true);
+      },
+      endDemo() {
+        writeDemo(false);
+        setDemoFlag(false);
+      },
       async signInWithGoogle(next = "/app/cards") {
         if (!client) return;
         await client.auth.signInWithOAuth({
@@ -60,7 +95,7 @@ export function AuthProvider({ children, client = supabase }: { children: ReactN
         await client?.auth.signOut();
       },
     }),
-    [client, ready, session],
+    [client, ready, session, demoFlag],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -16,6 +16,7 @@ import {
   unitLine,
   useMe,
   useMyCards,
+  useIsDemo,
   useOffers,
   useRecommend,
 } from "@card-wallet/shared";
@@ -82,6 +83,7 @@ function Recommendations() {
   const { data, isPending, isError } = useRecommend(category);
   const { data: me } = useMe();
   const [editing, setEditing] = useState(false);
+  const demo = useIsDemo();
 
   const picks = data?.picks ?? [];
   const [best, ...others] = picks;
@@ -146,11 +148,17 @@ function Recommendations() {
 
       <p className="source-note">
         {checked ? `Rewards checked ${checked} from issuer pages` : "Rewards from issuer pages, checked weekly"} ·
-        Fees: CFPB TCCP · Points valued at {cents(pointValue)} (
-        <button type="button" className="link-button inline" onClick={() => setEditing(true)}>
-          change
-        </button>
-        ) · {DISCLAIMER}
+        Fees: CFPB TCCP · Points valued at {cents(pointValue)}
+        {!demo && (
+          <>
+            {" "}(
+            <button type="button" className="link-button inline" onClick={() => setEditing(true)}>
+              change
+            </button>
+            )
+          </>
+        )}{" "}
+        · {DISCLAIMER}
       </p>
       {editing && <PointValueDialog current={pointValue} onClose={() => setEditing(false)} />}
     </section>
@@ -158,6 +166,7 @@ function Recommendations() {
 }
 
 function SidePanels() {
+  const demo = useIsDemo();
   const { data: cards } = useMyCards();
   const { data: ending } = useOffers({ status: "ending_soon" });
   return (
@@ -181,9 +190,11 @@ function SidePanels() {
           </Link>
         ))}
         {ending?.length === 0 && <p className="muted small">Nothing ends in the next week.</p>}
-        <Link to="/app/offers/new" className="dashed-link">
-          + Add offer or coupon · drop a screenshot
-        </Link>
+        {!demo && (
+          <Link to="/app/offers/new" className="dashed-link">
+            + Add offer or coupon · drop a screenshot
+          </Link>
+        )}
       </div>
 
       <div className="panel">

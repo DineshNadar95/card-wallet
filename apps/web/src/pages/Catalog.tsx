@@ -2,6 +2,7 @@ import {
   aprRange,
   type CardSummary,
   type CatalogParams,
+  MAX_COMPARE,
   cardArt,
   categoryLabel,
   money,
@@ -13,6 +14,7 @@ import {
   useMyCards,
 } from "@card-wallet/shared";
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 import { useAuth } from "../auth";
 import { AddCardDialog } from "../components/AddCardDialog";
@@ -58,6 +60,10 @@ export function Catalog() {
   const [on, setOn] = useState<Set<FilterKey>>(new Set());
   const [offset, setOffset] = useState(0);
   const [adding, setAdding] = useState<CardSummary | null>(null);
+  const [picked, setPicked] = useState<CardSummary[]>([]);
+  const isPicked = (id: number) => picked.some((p) => p.id === id);
+  const togglePick = (c: CardSummary) =>
+    setPicked((prev) => (isPicked(c.id) ? prev.filter((p) => p.id !== c.id) : [...prev, c].slice(0, MAX_COMPARE)));
   const q = useDebounced(query.trim());
 
   const { data, isPending, isError, isFetching } = useCatalog(toParams(q, on, offset));
@@ -120,6 +126,7 @@ export function Catalog() {
         <table className="catalog">
           <thead>
             <tr>
+              <th className="cmp-col">Compare</th>
               <th>Card</th>
               <th>Annual fee</th>
               <th className="wide">FX fee</th>
@@ -136,6 +143,16 @@ export function Catalog() {
               const count = owned.get(c.id) ?? 0;
               return (
                 <tr key={c.id} className={count ? "owned" : undefined}>
+                  <td className="cmp-col">
+                    <input
+                      type="checkbox"
+                      className="cmp-check"
+                      aria-label={`Compare ${c.name}`}
+                      checked={isPicked(c.id)}
+                      disabled={!isPicked(c.id) && picked.length >= MAX_COMPARE}
+                      onChange={() => togglePick(c)}
+                    />
+                  </td>
                   <td>
                     <div className="card-cell">
                       <span className="art" style={{ background: cardArt(c.id) }} />
@@ -217,6 +234,26 @@ export function Catalog() {
       <SourceNote source={items[0]?.source} rates={items.flatMap((c) => c.earn_rates)} extra="Terms are as reported to the CFPB." />
 
       {adding && <AddCardDialog card={adding} onClose={() => setAdding(null)} />}
+
+      {picked.length > 0 && (
+        <div className="compare-tray" role="region" aria-label="Compare tray">
+          <span>
+            <strong>{picked.length}</strong> of {MAX_COMPARE} selected to compare · {picked.map((p) => p.name).join(", ")}
+          </span>
+          <span className="tray-actions">
+            <button type="button" className="link-button tray-clear" onClick={() => setPicked([])}>
+              Clear
+            </button>
+            {picked.length >= 2 ? (
+              <Link to={`/app/compare?ids=${picked.map((p) => p.id).join(",")}`} className="btn tray-btn">
+                Compare side by side
+              </Link>
+            ) : (
+              <span className="small">Pick one more</span>
+            )}
+          </span>
+        </div>
+      )}
     </section>
   );
 }

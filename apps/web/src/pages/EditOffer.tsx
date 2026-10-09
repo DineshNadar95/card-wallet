@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
 import { OfferForm, type OfferFormValues, toInput } from "../components/OfferForm";
-import { RequireAuth } from "../components/SignIn";
+import { DemoGate, RequireAuth } from "../components/SignIn";
 
 const s = (v: number | null) => (v == null ? "" : String(v));
 
@@ -81,8 +81,11 @@ export function EditOffer() {
         </Link>
       </div>
       <RequireAuth>
-        <Loader />
+        <DemoGate what="edit offers">
+          <Loader />
+        </DemoGate>
       </RequireAuth>
     </section>
   );
 }
+

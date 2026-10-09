@@ -1,6 +1,6 @@
-import { ApiProvider, createApiClient } from "@card-wallet/shared";
+import { createApiClient } from "@card-wallet/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -10,7 +10,7 @@ import { App } from "./App";
 vi.mock("./lib/image", () => ({
   prepareImage: async (f: File) => new Blob([await f.arrayBuffer()], { type: "image/jpeg" }),
 }));
-import { AuthProvider } from "./auth";
+import { Providers } from "./Providers";
 
 const CARD = {
   id: 1,
@@ -40,6 +40,8 @@ let offerPatches: unknown[] = [];
 let deleted: number[] = [];
 let parseResult: { status: number; body: unknown } = { status: 200, body: {} };
 let parseUploads = 0;
+let paths: string[] = [];
+let catalogItems: unknown[] | null = null;
 
 const OFFER = (id: number, merchant: string, status: string, extra = {}) => ({
   id, user_card_id: null, card: null, merchant, kind: "amount_off", value: 100, max_back: null, min_spend: null,
@@ -66,13 +68,25 @@ function mockApi() {
   offerPatches = [];
   deleted = [];
   parseUploads = 0;
+  paths = [];
+  catalogItems = null;
+  sessionStorage.clear();
   parseResult = { status: 200, body: {} };
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: Request) => {
       const url = new URL(input.url);
+      paths.push(url.pathname);
+      if (url.pathname.startsWith("/demo/")) {
+        url.pathname = url.pathname === "/demo/me" ? "/me" : url.pathname.replace("/demo/", "/me/");
+      }
       if (url.pathname === "/health") return Response.json({ status: "ok", version: "0.1.0" });
-      if (url.pathname === "/catalog/cards") return Response.json({ items: [CARD], total: 1 });
+      if (url.pathname === "/catalog/cards") {
+        const items = catalogItems ?? [CARD];
+        return Response.json({ items, total: items.length });
+      }
+      const cat = url.pathname.match(/^\/catalog\/cards\/(\d+)$/);
+      if (cat) return Response.json((catalogItems ?? [CARD]).find((c) => (c as { id: number }).id === Number(cat[1])));
       if (url.pathname === "/me/cards" && input.method === "POST") {
         const body = await input.json();
         posted.push(body);
@@ -137,16 +151,13 @@ function fakeSupabase(signedIn: boolean): SupabaseClient {
 
 function renderAt(path: string, { signedIn = false } = {}) {
   const client = createApiClient({ baseUrl: "http://api.test" });
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <ApiProvider client={client}>
-      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-        <AuthProvider client={fakeSupabase(signedIn)}>
-          <MemoryRouter initialEntries={[path]}>
-            <App />
-          </MemoryRouter>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ApiProvider>,
+    <Providers api={client} queryClient={qc} auth={fakeSupabase(signedIn)}>
+      <MemoryRouter initialEntries={[path]}>
+        <App />
+      </MemoryRouter>
+    </Providers>,
   );
 }
 
@@ -162,7 +173,7 @@ describe("landing", () => {
   it("shows the headline, demo CTA and Google sign-in", () => {
     renderAt("/");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Know which card to use.");
-    expect(screen.getByRole("link", { name: /try the demo/i })).toHaveAttribute("href", "/app");
+    expect(screen.getByRole("link", { name: /try the demo/i })).toHaveAttribute("href", "/demo");
     expect(screen.getByRole("button", { name: "Continue with Google" })).toBeEnabled();
   });
 });
@@ -381,5 +392,85 @@ describe("offers", () => {
     renderAt("/app/offers/6", { signedIn: true });
     fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
     await waitFor(() => expect(deleted).toEqual([6]));
+  });
+});
+
+describe("demo mode", () => {
+  it("'Try the demo' shows sample data from /demo, read-only", async () => {
+    picks = [pick(1, "Demo Card A")];
+    walletCards = [{ id: 1, card_id: 1, last4: "1234", nickname: null, created_at: "", card: CARD }];
+    renderAt("/demo");
+    expect(await screen.findByText(/Nothing you do here is saved/)).toBeInTheDocument();
+    expect(await screen.findByRole("region", { name: "Best card" })).toBeInTheDocument();
+    expect(paths).toContain("/demo/recommend");
+    expect(paths.some((p) => p.startsWith("/me"))).toBe(false); // never touches real user endpoints
+    expect(screen.queryByRole("button", { name: "change" })).not.toBeInTheDocument();
+    expect(screen.getByText("Demo user")).toBeInTheDocument();
+  });
+
+  it("write screens show a read-only notice", async () => {
+    sessionStorage.setItem("card-wallet.demo", "1");
+    renderAt("/app/offers/new");
+    expect(await screen.findByText("This is the demo")).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Type it in" })).not.toBeInTheDocument();
+  });
+
+  it("exiting the demo returns to the sign-in prompt", async () => {
+    sessionStorage.setItem("card-wallet.demo", "1");
+    renderAt("/app/cards");
+    fireEvent.click(await screen.findByRole("button", { name: "Exit demo" }));
+    expect(await screen.findByText("Sign in to see your cards")).toBeInTheDocument();
+    expect(sessionStorage.getItem("card-wallet.demo")).toBeNull();
+  });
+
+  it("signed-in users never see the demo", async () => {
+    sessionStorage.setItem("card-wallet.demo", "1");
+    renderAt("/app", { signedIn: true });
+    expect(await screen.findByText("demo@example.test")).toBeInTheDocument();
+    expect(screen.queryByText(/Demo mode/)).not.toBeInTheDocument();
+  });
+});
+
+describe("compare", () => {
+  const rate = (category: string, value: number, unit = "percent") => ({
+    category, rate: value, unit, annual_cap: null, conditions: null,
+    source_url: "https://demo-bank.test", checked_at: "2026-10-04T00:00:00Z",
+  });
+  const A = { ...CARD, id: 11, name: "Demo Card A", annual_fee: 95, fx_fee: 0, earn_rates: [rate("dining", 4, "points"), rate("other", 1, "points")] };
+  const B = { ...CARD, id: 12, name: "Demo Card B", annual_fee: 0, fx_fee: 3, earn_rates: [rate("groceries", 6), rate("other", 1.5)] };
+  const C = { ...CARD, id: 13, name: "Demo Card C" };
+  const D = { ...CARD, id: 14, name: "Demo Card D" };
+
+  it("picks up to three cards in the catalog tray and compares them", async () => {
+    catalogItems = [A, B, C, D];
+    renderAt("/app/catalog");
+    fireEvent.click(await screen.findByRole("checkbox", { name: "Compare Demo Card A" }));
+    expect(screen.getByText("Pick one more")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Compare Demo Card B" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Compare Demo Card C" }));
+    expect(screen.getByRole("checkbox", { name: "Compare Demo Card D" })).toBeDisabled(); // max 3
+    fireEvent.click(screen.getByRole("checkbox", { name: "Compare Demo Card C" }));
+
+    fireEvent.click(screen.getByRole("link", { name: "Compare side by side" }));
+    const table = await screen.findByRole("table", { name: "Card comparison" });
+    const dining = within(table).getByRole("rowheader", { name: "Dining" }).closest("[role=row]")!;
+    const cells = within(dining as HTMLElement).getAllByRole("cell");
+    expect(cells.map((c) => c.textContent)).toEqual(["4x (better value)", "1.5% (base)"]);
+    expect(cells[0]).toHaveClass("better");
+    const fee = within(table).getByRole("rowheader", { name: "Annual fee" }).closest("[role=row]")!;
+    expect(within(fee as HTMLElement).getAllByRole("cell")[1]).toHaveClass("better");
+    expect(screen.getByText(/Not financial advice/)).toBeInTheDocument();
+  });
+
+  it("compares the user's own cards with their offer counts", async () => {
+    walletCards = [
+      { id: 1, card_id: 11, last4: "1234", nickname: null, created_at: "", card: A },
+      { id: 2, card_id: 12, last4: "5678", nickname: null, created_at: "", card: B },
+    ];
+    offers = [OFFER(7, "Demo Bistro", "active", { user_card_id: 1 })];
+    renderAt("/app/compare", { signedIn: true });
+    const table = await screen.findByRole("table", { name: "Card comparison" });
+    const row = within(table).getByRole("rowheader", { name: "Active offers" }).closest("[role=row]")!;
+    expect(within(row as HTMLElement).getAllByRole("cell").map((c) => c.textContent)).toEqual(["1", "0"]);
   });
 });

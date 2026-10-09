@@ -98,8 +98,35 @@ function ApiStatus() {
   );
 }
 
+function DemoBanner() {
+  const { demo, endDemo, signInWithGoogle, configured } = useAuth();
+  if (!demo) return null;
+  return (
+    <div className="demo-banner" role="status">
+      <span>
+        <strong>Demo mode</strong> · sample cards and offers. Nothing you do here is saved.
+      </span>
+      <span className="demo-actions">
+        <button type="button" className="link-button demo-link" disabled={!configured} onClick={() => signInWithGoogle("/app/cards")}>
+          Sign in to use your own cards
+        </button>
+        <button type="button" className="link-button demo-link" onClick={endDemo}>
+          Exit demo
+        </button>
+      </span>
+    </div>
+  );
+}
+
 function Account() {
-  const { session, signOut } = useAuth();
+  const { session, signOut, demo } = useAuth();
+  if (demo)
+    return (
+      <div className="account">
+        <div className="strong">Demo user</div>
+        <div className="account-email">Sample data</div>
+      </div>
+    );
   if (!session) return <GoogleButton next="/app/cards" className="btn btn-outline btn-block">Sign in</GoogleButton>;
   const meta = session.user.user_metadata as { full_name?: string; name?: string };
   return (
@@ -135,6 +162,7 @@ export function AppShell() {
       </aside>
 
       <div className="shell-main">
+        <DemoBanner />
         <main className="content">
           <Outlet />
         </main>

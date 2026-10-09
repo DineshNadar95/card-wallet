@@ -1,10 +1,12 @@
 export { type ApiClient, type ApiClientOptions, createApiClient } from "./client";
+export * from "./compare";
 export * from "./format";
 export * from "./offerForm";
 export {
   type AddCardInput,
   ApiError,
   ApiProvider,
+  DEMO_READ_ONLY,
   type CatalogParams,
   type ProfileUpdate,
   type RecommendCategory,
@@ -25,6 +27,7 @@ export {
   useCatalog,
   useCatalogCard,
   useHealth,
+  useIsDemo,
   useMe,
   useMyCard,
   useMyCards,

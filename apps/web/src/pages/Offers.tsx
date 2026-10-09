@@ -7,6 +7,7 @@ import {
   offerDetail,
   offerDue,
   offerValue,
+  useIsDemo,
   useOffers,
 } from "@card-wallet/shared";
 import { Link, useSearchParams } from "react-router";
@@ -21,12 +22,9 @@ const TABS: { k: OfferStatusFilter; label: string }[] = [
 
 export function OfferItem({ o }: { o: Offer }) {
   const urgent = o.status === "ending_soon";
-  return (
-    <Link
-      to={`/app/offers/${o.id}`}
-      className="offer"
-      style={{ borderLeftColor: o.card ? cardArt(o.card.card_id) : "#9AA4B2" }}
-    >
+  const demo = useIsDemo();
+  const body = (
+    <>
       <div className="offer-top">
         <span className="offer-merchant">{o.merchant}</span>
         <span className="offer-value">{offerValue(o)}</span>
@@ -38,6 +36,16 @@ export function OfferItem({ o }: { o: Offer }) {
         </span>
         <span className="source-pill">{OFFER_SOURCE_LABELS[o.source]}</span>
       </div>
+    </>
+  );
+  const style = { borderLeftColor: o.card ? cardArt(o.card.card_id) : "#9AA4B2" };
+  return demo ? (
+    <article className="offer" style={style}>
+      {body}
+    </article>
+  ) : (
+    <Link to={`/app/offers/${o.id}`} className="offer" style={style}>
+      {body}
     </Link>
   );
 }
@@ -73,13 +81,16 @@ function List() {
 }
 
 export function Offers() {
+  const demo = useIsDemo();
   return (
     <section className="page">
       <div className="page-head">
         <h1 className="page-title">Offers &amp; coupons</h1>
-        <Link to="/app/offers/new" className="btn btn-primary">
-          + Add offer
-        </Link>
+        {!demo && (
+          <Link to="/app/offers/new" className="btn btn-primary">
+            + Add offer
+          </Link>
+        )}
       </div>
       <RequireAuth>
         <List />

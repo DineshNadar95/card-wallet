@@ -40,11 +40,11 @@ export function SignInPrompt({ title, body }: { title: string; body: string }) {
   );
 }
 
-/** Renders children only when signed in; otherwise a sign-in prompt. */
+/** Renders children when signed in or in the demo; otherwise a sign-in prompt. */
 export function RequireAuth({ children }: { children: ReactNode }) {
-  const { ready, session } = useAuth();
+  const { ready, session, demo } = useAuth();
   if (!ready) return null;
-  if (!session)
+  if (!session && !demo)
     return (
       <SignInPrompt
         title="Sign in to see your cards"
@@ -52,4 +52,20 @@ export function RequireAuth({ children }: { children: ReactNode }) {
       />
     );
   return <>{children}</>;
+}
+
+/** Shown in place of write actions while browsing the demo. */
+export function DemoReadOnly({ what }: { what: string }) {
+  return (
+    <SignInPrompt
+      title="This is the demo"
+      body={`Demo data is read-only. Sign in with Google to ${what} with your own cards.`}
+    />
+  );
+}
+
+/** Write screens (add/edit) show a read-only notice instead of their form in the demo. */
+export function DemoGate({ what, children }: { what: string; children: ReactNode }) {
+  const { demo } = useAuth();
+  return demo ? <DemoReadOnly what={what} /> : <>{children}</>;
 }

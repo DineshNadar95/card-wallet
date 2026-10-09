@@ -1,3 +1,4 @@
+import { DISCLAIMER, useCatalog } from "@card-wallet/shared";
 import { Link } from "react-router";
 
 import { GoogleButton } from "../components/SignIn";
@@ -19,6 +20,8 @@ const FEATURES = [
 ];
 
 export function Landing() {
+  const { data: catalog } = useCatalog({ limit: 1 });
+  const source = catalog?.items[0]?.source;
   return (
     <div className="landing">
       <header className="landing-header">
@@ -51,7 +54,7 @@ export function Landing() {
             expires.
           </p>
           <div className="hero-ctas">
-            <Link to="/app" className="btn btn-primary btn-lg">
+            <Link to="/demo" className="btn btn-primary btn-lg">
               Try the demo — no sign-up
             </Link>
             <GoogleButton next="/app/cards" className="btn btn-outline btn-lg" />
@@ -87,6 +90,21 @@ export function Landing() {
         </div>
       </main>
 
+      <section className="stats" aria-label="What's inside">
+        <div>
+          <strong>{catalog ? catalog.total.toLocaleString() : "600+"}</strong>
+          <span>US cards in the catalog</span>
+        </div>
+        <div>
+          <strong>6</strong>
+          <span>spending categories ranked</span>
+        </div>
+        <div>
+          <strong>Weekly</strong>
+          <span>rewards refresh from issuer pages</span>
+        </div>
+      </section>
+
       <section id="how" className="features">
         {FEATURES.map((f) => (
           <div key={f.title} className="panel">
@@ -95,6 +113,14 @@ export function Landing() {
           </div>
         ))}
       </section>
+
+      <footer className="landing-footer">
+        <span>
+          Fees and APRs: {source ?? "CFPB Terms of Credit Card Plans survey"}. Reward rates from issuer
+          pages, each shown with its source and date. {DISCLAIMER}
+        </span>
+        <span>Card Wallet is a portfolio project. It never asks for card numbers or bank logins.</span>
+      </footer>
     </div>
   );
 }

@@ -3,6 +3,9 @@
 Which of my own credit cards should I use for this purchase? Plus offers & coupons with expiry reminders.
 Web (Vite + React) and mobile (Expo) apps on a FastAPI backend. See [CLAUDE.md](CLAUDE.md) for the full spec.
 
+Live setup: see [DEPLOY.md](DEPLOY.md). Try it without an account via **Try the demo** on the
+landing page (read-only sample data from `GET /demo/*`).
+
 ## Prerequisites
 
 - Node 24 LTS (`nvm install --lts`)

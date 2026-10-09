@@ -6,6 +6,7 @@ import {
   percent,
   rateLabel,
   useMyCard,
+  useIsDemo,
   useOffers,
   useRemoveCard,
 } from "@card-wallet/shared";
@@ -23,6 +24,7 @@ function Detail({ id }: { id: number }) {
   const navigate = useNavigate();
   const { data: uc, isPending, isError } = useMyCard(id);
   const remove = useRemoveCard();
+  const demo = useIsDemo();
   const { data: offers } = useOffers({ user_card_id: id, status: "active" });
 
   if (isPending) return <p className="muted">Loading…</p>;
@@ -91,9 +93,11 @@ function Detail({ id }: { id: number }) {
         <section>
           <div className="section-head">
             <h2 className="section-label">Your offers on this card</h2>
-            <Link to={`/app/offers/new?card=${uc.id}`} className="small strong">
-              + Add
-            </Link>
+            {!demo && (
+              <Link to={`/app/offers/new?card=${uc.id}`} className="small strong">
+                + Add
+              </Link>
+            )}
           </div>
           <div className="offer-list">
             {offers?.map((o) => <OfferItem key={o.id} o={o} />)}
@@ -132,12 +136,14 @@ function Detail({ id }: { id: number }) {
         </section>
 
         <div className="detail-actions">
-          <Link to="/app/compare" className="btn btn-outline">
+          <Link to={`/app/compare?ids=${c.id}`} className="btn btn-outline">
             Compare
           </Link>
-          <button type="button" className="btn btn-danger" onClick={onRemove} disabled={remove.isPending}>
-            Remove card
-          </button>
+          {!demo && (
+            <button type="button" className="btn btn-danger" onClick={onRemove} disabled={remove.isPending}>
+              Remove card
+            </button>
+          )}
         </div>
       </div>
     </div>

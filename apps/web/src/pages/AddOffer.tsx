@@ -3,7 +3,7 @@ import { type ChangeEvent, type DragEvent, useEffect, useRef, useState } from "r
 import { Link, useNavigate, useSearchParams } from "react-router";
 
 import { applyDraft, emptyOffer, OfferForm, type OfferFormValues, toInput } from "../components/OfferForm";
-import { RequireAuth } from "../components/SignIn";
+import { DemoGate, RequireAuth } from "../components/SignIn";
 import { prepareImage } from "../lib/image";
 
 type Mode = "photo" | "type";
@@ -148,8 +148,11 @@ export function AddOffer() {
         </Link>
       </div>
       <RequireAuth>
-        <Add />
+        <DemoGate what="add offers">
+          <Add />
+        </DemoGate>
       </RequireAuth>
     </section>
   );
 }
+

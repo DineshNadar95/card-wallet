@@ -25,6 +25,7 @@ export const queryKeys = {
   me: ["me"] as const,
   myCards: ["me", "cards"] as const,
   myCard: (id: number) => ["me", "cards", id] as const,
+  recommend: (category: string, merchant?: string) => ["me", "recommend", category, merchant ?? null] as const,
 };
 
 /** Status code carried on errors so screens can tell "signed out" from "broken". */
@@ -109,7 +110,7 @@ export function useAddCard() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (body: AddCardInput) => unwrap(await api.POST("/me/cards", { body })),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.myCards }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["me"] }),
   });
 }
 
@@ -123,6 +124,34 @@ export function useRemoveCard() {
       });
       if (!res.response.ok) throw new ApiError(res.response.status, "Could not remove card");
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.myCards }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["me"] }),
+  });
+}
+
+export type ProfileUpdate = operations["update_me"]["requestBody"]["content"]["application/json"];
+
+export function useUpdateMe() {
+  const api = useApi();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: ProfileUpdate) => unwrap(await api.PATCH("/me", { body })),
+    onSuccess: (profile) => {
+      qc.setQueryData(queryKeys.me, profile);
+      // Point value changes the ranking.
+      qc.invalidateQueries({ queryKey: ["me", "recommend"] });
+    },
+  });
+}
+
+export type RecommendCategory = operations["recommend_card"]["parameters"]["query"]["category"];
+
+export function useRecommend(category: RecommendCategory, merchant?: string, enabled = true) {
+  const api = useApi();
+  return useQuery({
+    queryKey: queryKeys.recommend(category, merchant),
+    queryFn: async () =>
+      unwrap(await api.GET("/me/recommend", { params: { query: { category, merchant } } })),
+    placeholderData: keepPreviousData,
+    enabled,
   });
 }

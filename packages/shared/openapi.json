@@ -221,6 +221,113 @@
             "HTTPBearer": []
           }
         ]
+      },
+      "patch": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Update Me",
+        "operationId": "update_me",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/me/recommend": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Recommend Card",
+        "description": "Rank the user's cards for a purchase category (see app/recommend.py).",
+        "operationId": "recommend_card",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Category"
+            }
+          },
+          {
+            "name": "merchant",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Merchant"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Recommendation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/me/cards": {
@@ -853,6 +960,159 @@
         ],
         "title": "Health"
       },
+      "OfferBrief": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "merchant": {
+            "type": "string",
+            "title": "Merchant"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "merchant",
+          "kind",
+          "value",
+          "code",
+          "expires_at"
+        ],
+        "title": "OfferBrief"
+      },
+      "PickOut": {
+        "properties": {
+          "user_card_id": {
+            "type": "integer",
+            "title": "User Card Id"
+          },
+          "card_id": {
+            "type": "integer",
+            "title": "Card Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "issuer": {
+            "type": "string",
+            "title": "Issuer"
+          },
+          "last4": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last4"
+          },
+          "nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nickname"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EarnRateOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "effective_cents": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Cents"
+          },
+          "matched_category": {
+            "type": "boolean",
+            "title": "Matched Category"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/OfferBrief"
+            },
+            "type": "array",
+            "title": "Offers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_card_id",
+          "card_id",
+          "name",
+          "issuer",
+          "last4",
+          "nickname",
+          "rate",
+          "effective_cents",
+          "matched_category",
+          "reason",
+          "offers"
+        ],
+        "title": "PickOut"
+      },
       "Profile": {
         "properties": {
           "user_id": {
@@ -895,6 +1155,38 @@
         ],
         "title": "Profile"
       },
+      "ProfileUpdate": {
+        "properties": {
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "point_value_cents": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 10.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point Value Cents"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ProfileUpdate"
+      },
       "RateUnit": {
         "type": "string",
         "enum": [
@@ -903,6 +1195,43 @@
           "miles"
         ],
         "title": "RateUnit"
+      },
+      "Recommendation": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "merchant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant"
+          },
+          "point_value_cents": {
+            "type": "number",
+            "title": "Point Value Cents"
+          },
+          "picks": {
+            "items": {
+              "$ref": "#/components/schemas/PickOut"
+            },
+            "type": "array",
+            "title": "Picks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "category",
+          "merchant",
+          "point_value_cents",
+          "picks"
+        ],
+        "title": "Recommendation"
       },
       "UserCardCreate": {
         "properties": {

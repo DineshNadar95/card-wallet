@@ -5,6 +5,8 @@ export {
   ApiError,
   ApiProvider,
   type CatalogParams,
+  type ProfileUpdate,
+  type RecommendCategory,
   queryKeys,
   useAddCard,
   useApi,
@@ -14,7 +16,9 @@ export {
   useMe,
   useMyCard,
   useMyCards,
+  useRecommend,
   useRemoveCard,
+  useUpdateMe,
 } from "./hooks";
 export type { components, operations, paths } from "./schema.gen";
 export * from "./tokens";
@@ -29,3 +33,5 @@ export type EarnRate = S["EarnRateOut"];
 export type UserCard = S["UserCardOut"];
 export type UserCardDetail = S["UserCardDetail"];
 export type Profile = S["Profile"];
+export type Recommendation = S["Recommendation"];
+export type CardPick = S["PickOut"];

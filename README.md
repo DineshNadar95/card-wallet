@@ -78,6 +78,18 @@ Clients sign in with Supabase (Google) and send the access token as `Authorizati
 The API verifies it against the project's JWKS (`app/auth.py`) and takes the user id only from
 the token. Every `/me/*` query filters by it; Row Level Security is a second layer.
 
+## How "which card" works
+
+`GET /me/recommend?category=dining` ranks the signed-in user's cards by cents earned per dollar
+(`backend/app/recommend.py`, a pure module covered by `tests/test_recommend.py`):
+
+- Cash back counts as-is (3% = 3¢). Points and miles are multiplied by the user's point value,
+  1¢ by default, changeable on the Home screen (`PATCH /me`).
+- A card without a bonus in that category falls back to its "everything else" rate.
+- Annual caps and conditions are spelled out in the reason; active offers on a card are mentioned.
+  Neither changes the order, since we don't track spending.
+- Cards with no rates on file rank last. Earn rates come only from the weekly scraper.
+
 ## Shared API client
 
 `packages/shared` holds TS types generated from the backend's OpenAPI schema, a typed

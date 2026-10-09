@@ -41,6 +41,7 @@ export default function RootLayout() {
             <Stack.Screen name="cards/[id]" options={{ title: "Card" }} />
             <Stack.Screen name="cards/add" options={{ title: "Add a card", presentation: "modal" }} />
             <Stack.Screen name="offers/new" options={{ title: "Add an offer", presentation: "modal" }} />
+            <Stack.Screen name="settings" options={{ title: "Settings", presentation: "modal" }} />
           </Stack>
         </AuthProvider>
       </QueryClientProvider>

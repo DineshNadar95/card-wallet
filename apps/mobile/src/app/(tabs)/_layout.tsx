@@ -18,7 +18,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: "Home", tabBarIcon: ({ color }) => <HomeIcon color={color} /> }}
+        options={{ title: "Home", headerShown: false, tabBarIcon: ({ color }) => <HomeIcon color={color} /> }}
       />
       <Tabs.Screen
         name="cards"

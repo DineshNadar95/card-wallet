@@ -893,3 +893,243 @@ table.catalog {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- home (WebApp.dc.html / Main.dc.html) ---------- */
+
+.greeting {
+  font-size: 13px;
+  color: var(--text-2);
+  margin-bottom: 4px;
+}
+.home {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.home-main,
+.home-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.chips-scroll {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filter.cat {
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  flex: 0 0 auto;
+}
+.best {
+  border-radius: 18px;
+  padding: 24px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 8px 24px rgba(20, 24, 31, 0.16);
+}
+.best.skeleton {
+  min-height: 220px;
+  background: #dde1e7;
+  box-shadow: none;
+}
+.best-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+.best-top > span:first-child {
+  opacity: 0.85;
+}
+.best-badge {
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.best-mid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+.best-name {
+  font-size: 26px;
+  font-weight: 700;
+}
+.best-issuer {
+  font-size: 14px;
+  opacity: 0.85;
+}
+.best-rate {
+  text-align: right;
+}
+.best-rate-num {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+}
+.best-rate-unit {
+  font-size: 13px;
+  opacity: 0.85;
+}
+.best-reason {
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10px 14px;
+  border-radius: 10px;
+  line-height: 1.45;
+}
+.best-link {
+  min-height: var(--touch);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+.best-link:hover {
+  color: var(--text);
+  background: #f4f5f7;
+}
+.others {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.other {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text);
+}
+.other:hover {
+  color: var(--text);
+  border-color: #c3c9d2;
+}
+.other-art {
+  width: 10px;
+  height: 40px;
+  border-radius: 4px;
+  flex: 0 0 auto;
+}
+.other-body {
+  flex: 1;
+  min-width: 0;
+}
+.other-rate {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-dark);
+}
+.link-button.inline {
+  min-height: 0;
+  font-size: inherit;
+  text-decoration: underline;
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.panel-head a {
+  text-decoration: none;
+}
+.panel-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+.dashed-link {
+  margin-top: 8px;
+  min-height: var(--touch);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px dashed #9aa4b2;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+.mini-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.mini-card {
+  border-radius: 10px;
+  color: #fff;
+  padding: 12px;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  font-size: 14px;
+}
+.mini-card:hover {
+  color: #fff;
+  filter: brightness(1.08);
+}
+.mini-card .small {
+  opacity: 0.85;
+  font-size: 12px;
+}
+
+@media (max-width: 1000px) {
+  .home {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 767px) {
+  /* Main.dc.html: phone home is just the picker; offers and cards have their own tabs. */
+  .home-side {
+    display: none;
+  }
+  .chips-scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 0 16px 2px;
+    scrollbar-width: none;
+  }
+  .best {
+    padding: 18px;
+    gap: 14px;
+  }
+  .best-name {
+    font-size: 20px;
+  }
+  .best-rate-num {
+    font-size: 30px;
+  }
+  .others {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 768px) {
+  .best-link {
+    display: none; /* desktop: the whole layout already links to cards on the right */
+  }
+}

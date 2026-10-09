@@ -41,13 +41,40 @@ export function rewardsCheckedAt(rates: EarnRate[]): string | null {
   return shortDate(latest);
 }
 
+/** Source dates read the same for every viewer, so format in UTC. */
 export const shortDate = (iso: string) =>
-  new Date(iso.length === 10 ? `${iso}T00:00:00` : iso).toLocaleDateString("en-US", {
+  new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 
 // Card art colors from the designs. Picked by id so a card keeps its color.
 const ART = ["#7A2E3A", "#2F5D3A", "#1F3A6B", "#5A4632", "#3B3F6B", "#2E4A52", "#6B2F3A", "#4F5B4A"];
 export const cardArt = (id: number) => ART[Math.abs(id) % ART.length];
+
+/** "Best for …" wording from the designs. */
+export const BEST_FOR: Record<keyof typeof CATEGORY_LABELS, string> = {
+  dining: "dining",
+  groceries: "groceries",
+  travel: "travel",
+  gas: "gas",
+  online: "online shopping",
+  other: "everyday spend",
+};
+
+/** Small line under the big rate on the top pick, e.g. "points on dining". */
+export function unitLine(rate: Pick<EarnRate, "unit" | "category">): string {
+  const unit = rate.unit === "percent" ? "cash back" : rate.unit;
+  const where = rate.category === "other" ? "everything" : categoryLabel(rate.category).toLowerCase();
+  return `${unit} on ${where}`;
+}
+
+/** 1 -> "1¢", 1.25 -> "1.25¢". */
+export const cents = (n: number) => `${num(n)}¢`;
+
+export function greeting(now = new Date()): string {
+  const h = now.getHours();
+  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+}

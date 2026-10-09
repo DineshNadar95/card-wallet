@@ -27,10 +27,23 @@ const CARD = {
 
 let walletCards: unknown[] = [];
 let posted: unknown[] = [];
+let picks: unknown[] = [];
+let requested: string[] = [];
+let pointValue = 1;
+
+const RATE = { category: "dining", rate: 4, unit: "points", annual_cap: null, conditions: null,
+  source_url: "https://demo-bank.test/a", checked_at: "2026-10-04T00:00:00Z" };
+const pick = (id: number, name: string, extra = {}) => ({
+  user_card_id: id, card_id: id, name, issuer: "Demo Bank", last4: "1234", nickname: null,
+  rate: RATE, effective_cents: 4, matched_category: true, reason: `${name} reason`, offers: [], ...extra,
+});
 
 function mockApi() {
   walletCards = [];
   posted = [];
+  picks = [];
+  requested = [];
+  pointValue = 1;
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: Request) => {
@@ -44,6 +57,15 @@ function mockApi() {
         return Response.json(walletCards.at(-1), { status: 201 });
       }
       if (url.pathname === "/me/cards") return Response.json(walletCards);
+      if (url.pathname === "/me/recommend") {
+        requested.push(url.searchParams.get("category")!);
+        return Response.json({ category: url.searchParams.get("category"), merchant: null, point_value_cents: pointValue, picks });
+      }
+      if (url.pathname === "/me" && input.method === "PATCH") {
+        pointValue = (await input.json()).point_value_cents;
+        return Response.json({ user_id: "u", email: null, display_name: null, point_value_cents: pointValue });
+      }
+      if (url.pathname === "/me") return Response.json({ user_id: "u", email: null, display_name: null, point_value_cents: pointValue });
       return new Response(null, { status: 404 });
     }),
   );
@@ -155,5 +177,60 @@ describe("catalog", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add card" }));
     expect(await screen.findByText("Added to your wallet")).toBeInTheDocument();
     expect(posted).toEqual([{ card_id: 1, last4: "4111", nickname: null }]);
+  });
+});
+
+describe("home", () => {
+  it("asks signed-out visitors to sign in", async () => {
+    renderAt("/app");
+    expect(await screen.findByText("Sign in to see your cards")).toBeInTheDocument();
+  });
+
+  it("shows the top pick, two alternatives, and the sourcing line", async () => {
+    picks = [pick(1, "Demo Card A"), pick(2, "Demo Card B", { rate: { ...RATE, rate: 3, unit: "percent" } }), pick(3, "Demo Card C")];
+    renderAt("/app", { signedIn: true });
+    const best = await screen.findByRole("region", { name: "Best card" });
+    expect(within(best).getByText("Demo Card A")).toBeInTheDocument();
+    expect(within(best).getByText("4x")).toBeInTheDocument();
+    expect(within(best).getByText("points on dining")).toBeInTheDocument();
+    expect(within(best).getByText("Demo Card A reason")).toBeInTheDocument();
+    expect(screen.getByText("Demo Card B").closest("a")).toHaveAttribute("href", "/app/cards/2");
+    expect(screen.getByText("3%")).toBeInTheDocument();
+    const note = screen.getByRole("button", { name: "change" }).closest("p")!;
+    expect(note).toHaveTextContent(
+      "Rewards checked Oct 4, 2026 from issuer pages · Fees: CFPB TCCP · Points valued at 1¢ (change) · Not financial advice.",
+    );
+  });
+
+  it("re-ranks when the category changes, and remembers it in the URL", async () => {
+    picks = [pick(1, "Demo Card A")];
+    renderAt("/app?for=gas", { signedIn: true });
+    expect(await screen.findByText("Best for gas")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Online" }));
+    expect(await screen.findByText("Best for online shopping")).toBeInTheDocument();
+    expect(requested).toEqual(["gas", "online"]);
+    expect(screen.getByRole("button", { name: "Online" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("explains when no reward rates are on file yet", async () => {
+    picks = [pick(1, "Demo Card A", { rate: null, effective_cents: null })];
+    renderAt("/app", { signedIn: true });
+    expect(await screen.findByText("No reward rates on file yet")).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Best card" })).not.toBeInTheDocument();
+  });
+
+  it("prompts to add cards when the wallet is empty", async () => {
+    renderAt("/app", { signedIn: true });
+    expect(await screen.findByText("Add the cards you own")).toBeInTheDocument();
+  });
+
+  it("lets the user change the point value", async () => {
+    picks = [pick(1, "Demo Card A")];
+    renderAt("/app", { signedIn: true });
+    fireEvent.click(await screen.findByRole("button", { name: "change" }));
+    fireEvent.change(screen.getByLabelText("Cents per point or mile"), { target: { value: "1.5" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await screen.findByText((_, el) => el?.tagName === "P" && /Points valued at 1\.5¢/.test(el.textContent ?? ""));
+    expect(requested.length).toBeGreaterThan(1); // ranking refetched with the new value
   });
 });

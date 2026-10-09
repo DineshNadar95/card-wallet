@@ -69,6 +69,27 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
+        /** Update Me */
+        patch: operations["update_me"];
+        trace?: never;
+    };
+    "/me/recommend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Recommend Card
+         * @description Rank the user's cards for a purchase category (see app/recommend.py).
+         */
+        get: operations["recommend_card"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
         patch?: never;
         trace?: never;
     };
@@ -234,6 +255,45 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** OfferBrief */
+        OfferBrief: {
+            /** Id */
+            id: number;
+            /** Merchant */
+            merchant: string;
+            /** Kind */
+            kind: string;
+            /** Value */
+            value: number | null;
+            /** Code */
+            code: string | null;
+            /** Expires At */
+            expires_at: string | null;
+        };
+        /** PickOut */
+        PickOut: {
+            /** User Card Id */
+            user_card_id: number;
+            /** Card Id */
+            card_id: number;
+            /** Name */
+            name: string;
+            /** Issuer */
+            issuer: string;
+            /** Last4 */
+            last4: string | null;
+            /** Nickname */
+            nickname: string | null;
+            rate: components["schemas"]["EarnRateOut"] | null;
+            /** Effective Cents */
+            effective_cents: number | null;
+            /** Matched Category */
+            matched_category: boolean;
+            /** Reason */
+            reason: string;
+            /** Offers */
+            offers: components["schemas"]["OfferBrief"][];
+        };
         /** Profile */
         Profile: {
             /**
@@ -248,11 +308,28 @@ export interface components {
             /** Point Value Cents */
             point_value_cents: number;
         };
+        /** ProfileUpdate */
+        ProfileUpdate: {
+            /** Display Name */
+            display_name?: string | null;
+            /** Point Value Cents */
+            point_value_cents?: number | null;
+        };
         /**
          * RateUnit
          * @enum {string}
          */
         RateUnit: "percent" | "points" | "miles";
+        /** Recommendation */
+        Recommendation: {
+            category: components["schemas"]["Category"];
+            /** Merchant */
+            merchant: string | null;
+            /** Point Value Cents */
+            point_value_cents: number;
+            /** Picks */
+            picks: components["schemas"]["PickOut"][];
+        };
         /** UserCardCreate */
         UserCardCreate: {
             /** Card Id */
@@ -422,6 +499,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Profile"];
+                };
+            };
+        };
+    };
+    update_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    recommend_card: {
+        parameters: {
+            query: {
+                category: components["schemas"]["Category"];
+                merchant?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Recommendation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

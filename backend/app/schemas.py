@@ -83,3 +83,41 @@ class UserCardOut(_Out):
 
 class UserCardDetail(UserCardOut):
     card: CardDetail
+
+
+class ProfileUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    display_name: str | None = Field(default=None, max_length=200)
+    # Cents one point or mile is worth. An assumption the user owns; shown wherever it's used.
+    point_value_cents: float | None = Field(default=None, gt=0, le=10)
+
+
+class OfferBrief(_Out):
+    id: int
+    merchant: str
+    kind: str
+    value: float | None
+    code: str | None
+    expires_at: date | None
+
+
+class PickOut(BaseModel):
+    user_card_id: int
+    card_id: int
+    name: str
+    issuer: str
+    last4: str | None
+    nickname: str | None
+    rate: EarnRateOut | None
+    effective_cents: float | None
+    matched_category: bool
+    reason: str
+    offers: list[OfferBrief]
+
+
+class Recommendation(BaseModel):
+    category: Category
+    merchant: str | None
+    point_value_cents: float
+    picks: list[PickOut]

@@ -18,8 +18,10 @@ one needs a value from the step before.
 
 ## 2. Render (API + reminder cron + scraper cron)
 
-1. Render → New → **Blueprint** → pick this repo. It creates `card-wallet-api`,
-   `card-wallet-reminders` (daily) and `card-wallet-scraper` (Sundays, Docker).
+1. Render → New → **Blueprint** → pick this repo. It creates `card-wallet-api` (free plan:
+   sleeps when idle, first request after a while takes ~1 min), `card-wallet-reminders` (daily)
+   and `card-wallet-scraper` (Sundays, Docker). Cron jobs have no free plan; they use the
+   smallest paid instance, billed by runtime.
 2. Fill in the env vars it asks for (they're `sync: false`, so they never live in git):
 
    | Var | Value |

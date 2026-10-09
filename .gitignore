@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+
+# Python
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Data import outputs
+data/cards_raw.csv
+data/cards_rag.jsonl
+
+# Expo
+.expo/
+apps/mobile/ios/
+apps/mobile/android/
+
+# Machine-specific preview config
+.claude/launch.json
+*.tsbuildinfo

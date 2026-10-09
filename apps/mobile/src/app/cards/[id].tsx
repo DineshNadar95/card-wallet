@@ -1,7 +1,18 @@
-import { aprRange, cardArt, categoryLabel, money, percent, rateLabel, useMyCard, useRemoveCard } from "@card-wallet/shared";
+import {
+  aprRange,
+  cardArt,
+  categoryLabel,
+  money,
+  percent,
+  rateLabel,
+  useMyCard,
+  useOffers,
+  useRemoveCard,
+} from "@card-wallet/shared";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { OfferItem } from "@/components/OfferItem";
 import { Button, List, Loading, Muted, Row, s, SectionLabel, SourceNote } from "@/components/ui";
 import { colors, fonts } from "@/lib/theme";
 
@@ -9,6 +20,7 @@ export default function CardDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: uc, isPending, isError } = useMyCard(Number(id));
   const remove = useRemoveCard();
+  const { data: offers } = useOffers({ user_card_id: Number(id), status: "active" });
 
   if (isPending) return <Loading />;
   if (isError || !uc)
@@ -77,10 +89,24 @@ export default function CardDetail() {
       </View>
 
       <View>
-        <SectionLabel>Your offers on this card</SectionLabel>
-        <List>
-          <Row left="Offers & coupons are coming soon." last />
-        </List>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+          <SectionLabel>Your offers on this card</SectionLabel>
+          <Text
+            accessibilityRole="button"
+            style={{ fontFamily: fonts.semibold, fontSize: 13, color: colors.accent, padding: 8, marginTop: -8 }}
+            onPress={() => router.push({ pathname: "/offers/new", params: { card: String(uc.id) } })}
+          >
+            + Add
+          </Text>
+        </View>
+        <View style={{ gap: 8 }}>
+          {offers?.map((o) => <OfferItem key={o.id} o={o} />)}
+          {offers?.length === 0 && (
+            <List>
+              <Row left="No active offers on this card." last />
+            </List>
+          )}
+        </View>
       </View>
 
       <View>

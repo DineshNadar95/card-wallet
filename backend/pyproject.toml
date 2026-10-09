@@ -5,12 +5,15 @@ description = "Card Wallet API"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.0",
+    "anthropic>=1.12.1",
     "fastapi>=0.143.0",
+    "httpx2>=2.13.1",
     "openpyxl>=3.1.5",
     "psycopg[binary]>=3.3.6",
     "pydantic>=2",
     "pydantic-settings>=2.15.0",
     "pyjwt[crypto]>=2.15.1",
+    "python-multipart>=0.0.32",
     "sqlalchemy>=2",
     "uvicorn[standard]>=0.54.0",
 ]
@@ -18,8 +21,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "cryptography>=50.0.2",
-    "httpx2>=2.13.1",
     "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
     "ruff>=0.16.10",
 ]
 
@@ -29,6 +32,7 @@ package = false
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+asyncio_mode = "auto"
 
 [tool.ruff]
 line-length = 100

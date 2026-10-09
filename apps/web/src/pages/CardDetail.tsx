@@ -6,11 +6,13 @@ import {
   percent,
   rateLabel,
   useMyCard,
+  useOffers,
   useRemoveCard,
 } from "@card-wallet/shared";
 import { Link, useNavigate, useParams } from "react-router";
 
 import { RequireAuth } from "../components/SignIn";
+import { OfferItem } from "./Offers";
 import { SourceNote } from "../components/SourceNote";
 
 function aprText(lo?: number | null, hi?: number | null) {
@@ -21,6 +23,7 @@ function Detail({ id }: { id: number }) {
   const navigate = useNavigate();
   const { data: uc, isPending, isError } = useMyCard(id);
   const remove = useRemoveCard();
+  const { data: offers } = useOffers({ user_card_id: id, status: "active" });
 
   if (isPending) return <p className="muted">Loading…</p>;
   if (isError || !uc)
@@ -86,9 +89,19 @@ function Detail({ id }: { id: number }) {
         </section>
 
         <section>
-          <h2 className="section-label">Your offers on this card</h2>
-          <div className="list">
-            <div className="list-row muted">Offers & coupons are coming soon.</div>
+          <div className="section-head">
+            <h2 className="section-label">Your offers on this card</h2>
+            <Link to={`/app/offers/new?card=${uc.id}`} className="small strong">
+              + Add
+            </Link>
+          </div>
+          <div className="offer-list">
+            {offers?.map((o) => <OfferItem key={o.id} o={o} />)}
+            {offers?.length === 0 && (
+              <div className="list">
+                <div className="list-row muted">No active offers on this card.</div>
+              </div>
+            )}
           </div>
         </section>
       </div>

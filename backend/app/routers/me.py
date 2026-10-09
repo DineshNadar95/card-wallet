@@ -5,18 +5,20 @@ from decimal import Decimal
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from sqlalchemy import or_, select
+from sqlalchemy import delete, or_, select
 from sqlalchemy.orm import Session
 
 from app import recommend as rec
 from app.auth import User
-from app.db.models import Card, Category, Offer, Profile, UserCard
+from app.db.models import Card, Category, Offer, Profile, PushToken, UserCard
 from app.db.session import get_db
+from app.deps import get_today
 from app.schemas import (
     EarnRateOut,
     OfferBrief,
     PickOut,
     ProfileUpdate,
+    PushTokenIn,
     Recommendation,
     UserCardCreate,
     UserCardDetail,
@@ -39,8 +41,11 @@ def _own_card(db: Session, user: User, user_card_id: int) -> UserCard:
 def _profile(db: Session, user: User) -> Profile:
     profile = db.get(Profile, user.id)
     if profile is None:
-        profile = Profile(user_id=user.id, point_value_cents=Decimal("1.0"))
+        profile = Profile(user_id=user.id, point_value_cents=Decimal("1.0"), email=user.email)
         db.add(profile)
+        db.commit()
+    elif user.email and profile.email != user.email:
+        profile.email = user.email  # keep the reminder address current
         db.commit()
     return profile
 
@@ -68,10 +73,13 @@ def update_me(body: ProfileUpdate, user: User, db: Db) -> ProfileOut:
 
 @router.get("/recommend", response_model=Recommendation)
 def recommend_card(
-    category: Category, user: User, db: Db, merchant: str | None = None
+    category: Category,
+    user: User,
+    db: Db,
+    today: Annotated[date, Depends(get_today)],
+    merchant: str | None = None,
 ) -> Recommendation:
     """Rank the user's cards for a purchase category (see app/recommend.py)."""
-    today = date.today()
     point_value = _profile(db, user).point_value_cents
     owned = list(db.scalars(select(UserCard).where(UserCard.user_id == user.id)).unique())
     offers = list(
@@ -183,5 +191,26 @@ def add_my_card(body: UserCardCreate, user: User, db: Db) -> UserCard:
 @router.delete("/cards/{user_card_id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_my_card(user_card_id: int, user: User, db: Db) -> Response:
     db.delete(_own_card(db, user, user_card_id))
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/push-tokens", status_code=status.HTTP_204_NO_CONTENT)
+def register_push_token(body: PushTokenIn, user: User, db: Db) -> Response:
+    """Called by the mobile app after notification permission is granted."""
+    row = db.scalar(select(PushToken).where(PushToken.token == body.token))
+    if row is None:
+        db.add(PushToken(user_id=user.id, token=body.token, platform=body.platform))
+    else:
+        row.user_id = user.id  # same device, now signed in as this user
+        row.platform = body.platform or row.platform
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete("/push-tokens", status_code=status.HTTP_204_NO_CONTENT)
+def unregister_push_token(body: PushTokenIn, user: User, db: Db) -> Response:
+    """Called on sign-out so a shared device stops getting this user's reminders."""
+    db.execute(delete(PushToken).where(PushToken.token == body.token, PushToken.user_id == user.id))
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)

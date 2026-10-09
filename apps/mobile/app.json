@@ -26,7 +26,15 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Card Wallet reads offer and coupon details from photos you choose.",
+          "cameraPermission": "Card Wallet reads offer and coupon details from photos you take."
+        }
+      ],
+      "expo-notifications"
     ],
     "scheme": "cardwallet"
   }

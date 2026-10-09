@@ -78,3 +78,50 @@ export function greeting(now = new Date()): string {
   const h = now.getHours();
   return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
 }
+
+// ---------------------------------------------------------------- offers
+
+type OfferLike = Pick<
+  components["schemas"]["OfferOut"],
+  "kind" | "value" | "code" | "min_spend" | "max_back" | "notes" | "status" | "days_left" | "expires_at" | "source" | "card"
+>;
+
+export function offerValue(o: Pick<OfferLike, "kind" | "value" | "code">): string {
+  switch (o.kind) {
+    case "percent_back":
+      return `${num(o.value ?? 0)}% back`;
+    case "amount_off":
+      return `$${num(o.value ?? 0)} off`;
+    case "points":
+      return `${num(o.value ?? 0)}x pts`;
+    default:
+      return o.code ? `Code ${o.code}` : "Coupon";
+  }
+}
+
+/** "Spend $50+, up to $15 back · One use" */
+export function offerDetail(o: OfferLike): string {
+  const terms: string[] = [];
+  if (o.min_spend) terms.push(`Spend $${num(o.min_spend)}+`);
+  if (o.max_back) terms.push(`up to $${num(o.max_back)} back`);
+  const parts = [terms.join(", ")];
+  if (o.kind !== "code" && o.code) parts.push(`code ${o.code}`);
+  if (o.notes) parts.push(o.notes);
+  return parts.filter(Boolean).join(" · ");
+}
+
+export function offerDue(o: Pick<OfferLike, "status" | "days_left" | "expires_at" | "source">): string {
+  if (o.days_left == null) return o.source === "card_benefit" ? "Card benefit" : "No end date";
+  if (o.status === "expired") return "Expired";
+  if (o.days_left === 0) return "Ends today";
+  if (o.days_left === 1) return "Ends tomorrow";
+  if (o.status === "ending_soon") return `Ends in ${o.days_left} days`;
+  return `Ends ${shortDate(o.expires_at!)}`;
+}
+
+export const OFFER_SOURCE_LABELS = { screenshot: "Screenshot", typed: "Typed", card_benefit: "Card benefit" } as const;
+
+export function offerCardLabel(o: Pick<OfferLike, "card">): string {
+  if (!o.card) return "Coupon · no card";
+  return `${o.card.nickname || o.card.name}${o.card.last4 ? ` •••• ${o.card.last4}` : ""}`;
+}

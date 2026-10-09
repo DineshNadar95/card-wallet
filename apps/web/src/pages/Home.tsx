@@ -8,11 +8,15 @@ import {
   cents,
   DISCLAIMER,
   greeting,
+  offerCardLabel,
+  offerDue,
+  offerValue,
   rateLabel,
   rewardsCheckedAt,
   unitLine,
   useMe,
   useMyCards,
+  useOffers,
   useRecommend,
 } from "@card-wallet/shared";
 import { useState } from "react";
@@ -155,6 +159,7 @@ function Recommendations() {
 
 function SidePanels() {
   const { data: cards } = useMyCards();
+  const { data: ending } = useOffers({ status: "ending_soon" });
   return (
     <aside className="home-side">
       <div className="panel">
@@ -164,9 +169,20 @@ function SidePanels() {
             All offers
           </Link>
         </div>
-        <p className="muted small">Offers &amp; coupons you add will show up here before they expire.</p>
+        {ending?.slice(0, 4).map((o) => (
+          <Link key={o.id} to={`/app/offers/${o.id}`} className="ending-row">
+            <div>
+              <div className="strong">
+                {o.merchant} <span className="offer-value-inline">· {offerValue(o)}</span>
+              </div>
+              <div className="small muted">{offerCardLabel(o)}</div>
+            </div>
+            <span className="small strong urgent">{offerDue(o)}</span>
+          </Link>
+        ))}
+        {ending?.length === 0 && <p className="muted small">Nothing ends in the next week.</p>}
         <Link to="/app/offers/new" className="dashed-link">
-          + Add offer or coupon
+          + Add offer or coupon · drop a screenshot
         </Link>
       </div>
 

@@ -90,6 +90,21 @@ the token. Every `/me/*` query filters by it; Row Level Security is a second lay
   Neither changes the order, since we don't track spending.
 - Cards with no rates on file rank last. Earn rates come only from the weekly scraper.
 
+## Offers, photos and reminders
+
+- `GET/POST/PATCH/DELETE /me/offers` (`?status=active|ending_soon|expired`; "ending soon" = 7 days
+  or less, and "active" includes those). Card-linked offers must point at the user's own card.
+- `POST /me/offers/parse-image` sends the photo to Claude (`backend/app/offer_parser.py`, model
+  from `ANTHROPIC_MODEL`) and returns a **draft** with a confidence per field. Nothing is saved;
+  the user confirms in the form, and low-confidence fields are flagged "Check this". Clients
+  re-encode photos to JPEG (max 2000px) first, which also strips EXIF/GPS. Limits: 5 MB,
+  JPEG/PNG/WebP/GIF, 20 photos per user per hour.
+- Reminders: `uv run python -m app.jobs.reminders` (daily Render cron in `render.yaml`; add
+  `--dry-run` to preview). Sends one email (SMTP) and one Expo push per user, then sets
+  `reminded_at`. A skipped day catches up the next day; nothing is marked unless delivered.
+- Push needs an EAS project id in the mobile app (`npx eas-cli init` in `apps/mobile`) and a
+  development or production build: Expo Go can't receive push on Android.
+
 ## Shared API client
 
 `packages/shared` holds TS types generated from the backend's OpenAPI schema, a typed

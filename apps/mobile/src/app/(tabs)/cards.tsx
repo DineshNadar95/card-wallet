@@ -1,4 +1,4 @@
-import { cardArt, categoryLabel, rateLabel, useCatalog, useMyCards } from "@card-wallet/shared";
+import { cardArt, categoryLabel, rateLabel, useCatalog, useMyCards, useOffers } from "@card-wallet/shared";
 import { Link, router } from "expo-router";
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -9,6 +9,10 @@ import { colors, fonts } from "@/lib/theme";
 function Wallet() {
   const { data: cards, isPending, isError, refetch, isRefetching } = useMyCards();
   const { data: catalog } = useCatalog({ limit: 1 });
+  const { data: offers } = useOffers({ status: "active" });
+  const offerCount = new Map<number, number>();
+  for (const o of offers ?? []) if (o.user_card_id) offerCount.set(o.user_card_id, (offerCount.get(o.user_card_id) ?? 0) + 1);
+  const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
 
   return (
     <ScrollView
@@ -17,7 +21,7 @@ function Wallet() {
       refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
     >
       <View style={st.head}>
-        <Muted>{cards ? `${cards.length} card${cards.length === 1 ? "" : "s"}` : " "}</Muted>
+        <Muted>{cards ? `${plural(cards.length, "card")} · ${plural(offers?.length ?? 0, "active offer")}` : " "}</Muted>
         <Button label="+ Add card" onPress={() => router.push("/cards/add")} />
       </View>
 
@@ -28,6 +32,7 @@ function Wallet() {
         <Link key={uc.id} href={{ pathname: "/cards/[id]", params: { id: uc.id } }} asChild>
           <Pressable accessibilityRole="link" style={st.card}>
             <View style={[st.art, { backgroundColor: cardArt(uc.card.id) }]}>
+              {!!offerCount.get(uc.id) && <Text style={st.badge}>{plural(offerCount.get(uc.id)!, "offer")}</Text>}
               <Text style={st.name}>{uc.nickname || uc.card.name}</Text>
               <Text style={st.meta}>
                 {uc.card.issuer}
@@ -101,6 +106,19 @@ const st = StyleSheet.create({
     borderColor: colors.border,
     overflow: "hidden",
     color: colors.text,
+  },
+  badge: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    backgroundColor: colors.offerBg,
+    color: colors.offerText,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 999,
+    overflow: "hidden",
   },
   addTile: {
     borderWidth: 1,

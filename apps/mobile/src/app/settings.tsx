@@ -1,16 +1,18 @@
-import { useMe, useUpdateMe } from "@card-wallet/shared";
+import { useApi, useMe, useUpdateMe } from "@card-wallet/shared";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Text, TextInput, View } from "react-native";
 
 import { Button, Loading, Muted, s } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
+import { unregisterPush } from "@/lib/push";
 import { colors, fonts } from "@/lib/theme";
 
 export default function Settings() {
   const { session, signOut } = useAuth();
   const { data: me, isPending } = useMe(!!session);
   const update = useUpdateMe();
+  const api = useApi();
   const [value, setValue] = useState("");
 
   useEffect(() => {
@@ -53,7 +55,12 @@ export default function Settings() {
       <View style={s.card}>
         <Text style={s.cardTitle}>Account</Text>
         <Muted>{session.user.email}</Muted>
-        <Button label="Sign out" kind="outline" onPress={() => signOut().then(() => router.back())} />
+        <Button label="Sign out" kind="outline" onPress={() =>
+            unregisterPush(api)
+              .catch(() => {})
+              .then(signOut)
+              .then(() => router.back())
+          } />
       </View>
     </View>
   );

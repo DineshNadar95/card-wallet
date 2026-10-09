@@ -1,4 +1,4 @@
-import { cardArt, categoryLabel, rateLabel, useCatalog, useMyCards } from "@card-wallet/shared";
+import { cardArt, categoryLabel, rateLabel, useCatalog, useMyCards, useOffers } from "@card-wallet/shared";
 import { Link } from "react-router";
 
 import { RequireAuth } from "../components/SignIn";
@@ -7,13 +7,19 @@ import { SourceNote } from "../components/SourceNote";
 function Wallet() {
   const { data: cards, isPending, isError } = useMyCards();
   const { data: catalog } = useCatalog({ limit: 1 });
+  const { data: offers } = useOffers({ status: "active" });
+  const offerCount = new Map<number, number>();
+  for (const o of offers ?? []) if (o.user_card_id) offerCount.set(o.user_card_id, (offerCount.get(o.user_card_id) ?? 0) + 1);
+  const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
 
   return (
     <>
       <div className="page-head">
         <div>
           <h1 className="page-title">My cards</h1>
-          <div className="page-sub">{cards ? `${cards.length} card${cards.length === 1 ? "" : "s"}` : " "}</div>
+          <div className="page-sub">
+            {cards ? `${plural(cards.length, "card")} · ${plural(offers?.length ?? 0, "active offer")}` : " "}
+          </div>
         </div>
         <Link to="/app/catalog" className="btn btn-primary">
           + Add card
@@ -27,6 +33,9 @@ function Wallet() {
         {cards?.map((uc) => (
           <Link key={uc.id} to={`/app/cards/${uc.id}`} className="wallet-card">
             <div className="wallet-art" style={{ background: cardArt(uc.card.id) }}>
+              {offerCount.get(uc.id) ? (
+                <span className="offer-badge">{plural(offerCount.get(uc.id)!, "offer")}</span>
+              ) : null}
               <div>
                 <div className="wallet-name">{uc.nickname || uc.card.name}</div>
                 <div className="wallet-meta">

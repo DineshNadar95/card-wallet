@@ -488,10 +488,413 @@
           }
         }
       }
+    },
+    "/me/push-tokens": {
+      "post": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Register Push Token",
+        "description": "Called by the mobile app after notification permission is granted.",
+        "operationId": "register_push_token",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushTokenIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "me"
+        ],
+        "summary": "Unregister Push Token",
+        "description": "Called on sign-out so a shared device stops getting this user's reminders.",
+        "operationId": "unregister_push_token",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushTokenIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/me/offers": {
+      "get": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "List Offers",
+        "description": "`active` = not expired (includes ending soon); `ending_soon` = ends within 7 days.",
+        "operationId": "list_offers",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "active",
+                    "ending_soon",
+                    "expired"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "user_card_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Card Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OfferOut"
+                  },
+                  "title": "Response List Offers"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "Create Offer",
+        "operationId": "create_offer",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfferCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/me/offers/parse-image": {
+      "post": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "Parse Offer Image",
+        "description": "Image in, draft offer out (each field with a confidence). Saves nothing.",
+        "operationId": "parse_offer_image",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_parse_offer_image"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferDraft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/me/offers/{offer_id}": {
+      "get": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "Get Offer",
+        "operationId": "get_offer",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Offer Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "Update Offer",
+        "operationId": "update_offer",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Offer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfferUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfferOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "Delete Offer",
+        "operationId": "delete_offer",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Offer Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "Body_parse_offer_image": {
+        "properties": {
+          "image": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Image"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image"
+        ],
+        "title": "Body_parse_offer_image"
+      },
       "CardDetail": {
         "properties": {
           "id": {
@@ -929,6 +1332,140 @@
         ],
         "title": "EarnRateOut"
       },
+      "FieldGuess_Category_": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Category"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "confidence"
+        ],
+        "title": "FieldGuess[Category]"
+      },
+      "FieldGuess_OfferKind_": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OfferKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "confidence"
+        ],
+        "title": "FieldGuess[OfferKind]"
+      },
+      "FieldGuess_date_": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "confidence"
+        ],
+        "title": "FieldGuess[date]"
+      },
+      "FieldGuess_float_": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "confidence"
+        ],
+        "title": "FieldGuess[float]"
+      },
+      "FieldGuess_str_": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "confidence"
+        ],
+        "title": "FieldGuess[str]"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1019,6 +1556,567 @@
           "expires_at"
         ],
         "title": "OfferBrief"
+      },
+      "OfferCard": {
+        "properties": {
+          "user_card_id": {
+            "type": "integer",
+            "title": "User Card Id"
+          },
+          "card_id": {
+            "type": "integer",
+            "title": "Card Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nickname"
+          },
+          "last4": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last4"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_card_id",
+          "card_id",
+          "name",
+          "nickname",
+          "last4"
+        ],
+        "title": "OfferCard"
+      },
+      "OfferCreate": {
+        "properties": {
+          "user_card_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Card Id"
+          },
+          "merchant": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Merchant"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/OfferKind"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "max_back": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Back"
+          },
+          "min_spend": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Spend"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Category"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "source": {
+            "$ref": "#/components/schemas/OfferSource",
+            "default": "typed"
+          },
+          "remind_days": {
+            "type": "integer",
+            "enum": [
+              0,
+              3,
+              5,
+              7
+            ],
+            "title": "Remind Days",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "merchant",
+          "kind"
+        ],
+        "title": "OfferCreate"
+      },
+      "OfferDraft": {
+        "properties": {
+          "is_offer": {
+            "type": "boolean",
+            "title": "Is Offer"
+          },
+          "merchant": {
+            "$ref": "#/components/schemas/FieldGuess_str_"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FieldGuess_OfferKind_"
+          },
+          "value": {
+            "$ref": "#/components/schemas/FieldGuess_float_"
+          },
+          "max_back": {
+            "$ref": "#/components/schemas/FieldGuess_float_"
+          },
+          "min_spend": {
+            "$ref": "#/components/schemas/FieldGuess_float_"
+          },
+          "expires_at": {
+            "$ref": "#/components/schemas/FieldGuess_date_"
+          },
+          "code": {
+            "$ref": "#/components/schemas/FieldGuess_str_"
+          },
+          "category": {
+            "$ref": "#/components/schemas/FieldGuess_Category_"
+          },
+          "notes": {
+            "$ref": "#/components/schemas/FieldGuess_str_"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_offer",
+          "merchant",
+          "kind",
+          "value",
+          "max_back",
+          "min_spend",
+          "expires_at",
+          "code",
+          "category",
+          "notes"
+        ],
+        "title": "OfferDraft",
+        "description": "What the photo reader saw. Nothing is saved; the user confirms in the UI."
+      },
+      "OfferKind": {
+        "type": "string",
+        "enum": [
+          "percent_back",
+          "amount_off",
+          "points",
+          "code"
+        ],
+        "title": "OfferKind"
+      },
+      "OfferOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "user_card_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Card Id"
+          },
+          "card": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OfferCard"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "merchant": {
+            "type": "string",
+            "title": "Merchant"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/OfferKind"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "max_back": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Back"
+          },
+          "min_spend": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Spend"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Category"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "source": {
+            "$ref": "#/components/schemas/OfferSource"
+          },
+          "remind_days": {
+            "type": "integer",
+            "title": "Remind Days"
+          },
+          "reminded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reminded At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "ending_soon",
+              "expired"
+            ],
+            "title": "Status"
+          },
+          "days_left": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Days Left"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_card_id",
+          "card",
+          "merchant",
+          "kind",
+          "value",
+          "max_back",
+          "min_spend",
+          "code",
+          "expires_at",
+          "category",
+          "notes",
+          "source",
+          "remind_days",
+          "reminded_at",
+          "created_at",
+          "status",
+          "days_left"
+        ],
+        "title": "OfferOut"
+      },
+      "OfferSource": {
+        "type": "string",
+        "enum": [
+          "screenshot",
+          "typed",
+          "card_benefit"
+        ],
+        "title": "OfferSource"
+      },
+      "OfferUpdate": {
+        "properties": {
+          "user_card_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Card Id"
+          },
+          "merchant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merchant"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OfferKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "max_back": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Back"
+          },
+          "min_spend": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Spend"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Category"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OfferSource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "remind_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remind Days"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "OfferUpdate",
+        "description": "Any subset of fields; the merged result is validated as a whole."
       },
       "PickOut": {
         "properties": {
@@ -1186,6 +2284,38 @@
         "additionalProperties": false,
         "type": "object",
         "title": "ProfileUpdate"
+      },
+      "PushTokenIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 200,
+            "pattern": "^Expo(nent)?PushToken\\[[A-Za-z0-9_-]{1,190}\\]$",
+            "title": "Token"
+          },
+          "platform": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ios",
+                  "android",
+                  "web"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Platform"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "PushTokenIn"
       },
       "RateUnit": {
         "type": "string",

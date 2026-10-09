@@ -155,3 +155,91 @@ export function useRecommend(category: RecommendCategory, merchant?: string, ena
     enabled,
   });
 }
+
+// ---------------------------------------------------------------- offers
+
+export type OfferStatusFilter = NonNullable<
+  NonNullable<operations["list_offers"]["parameters"]["query"]>["status"]
+>;
+export type OfferInput = operations["create_offer"]["requestBody"]["content"]["application/json"];
+export type OfferPatch = operations["update_offer"]["requestBody"]["content"]["application/json"];
+
+const offersKey = ["me", "offers"] as const;
+
+export function useOffers(params: { status?: OfferStatusFilter; user_card_id?: number } = {}, enabled = true) {
+  const api = useApi();
+  return useQuery({
+    queryKey: [...offersKey, params],
+    queryFn: async () => unwrap(await api.GET("/me/offers", { params: { query: params } })),
+    enabled,
+  });
+}
+
+export function useOffer(id: number | null) {
+  const api = useApi();
+  return useQuery({
+    queryKey: [...offersKey, "one", id],
+    queryFn: async () => unwrap(await api.GET("/me/offers/{offer_id}", { params: { path: { offer_id: id! } } })),
+    enabled: id != null,
+  });
+}
+
+/** Offers feed the recommendation reasons too, so refresh everything under "me". */
+const refreshMe = (qc: ReturnType<typeof useQueryClient>) => qc.invalidateQueries({ queryKey: ["me"] });
+
+export function useCreateOffer() {
+  const api = useApi();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: OfferInput) => unwrap(await api.POST("/me/offers", { body })),
+    onSuccess: () => refreshMe(qc),
+  });
+}
+
+export function useUpdateOffer(id: number) {
+  const api = useApi();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: OfferPatch) =>
+      unwrap(await api.PATCH("/me/offers/{offer_id}", { params: { path: { offer_id: id } }, body })),
+    onSuccess: () => refreshMe(qc),
+  });
+}
+
+export function useDeleteOffer() {
+  const api = useApi();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await api.DELETE("/me/offers/{offer_id}", { params: { path: { offer_id: id } } });
+      if (!res.response.ok) throw new ApiError(res.response.status, "Could not delete offer");
+    },
+    onSuccess: () => refreshMe(qc),
+  });
+}
+
+/**
+ * Photo -> draft offer. `form` must hold the image under "image"
+ * (a File/Blob on web; `{ uri, name, type }` on React Native).
+ */
+export function useParseOfferImage() {
+  const api = useApi();
+  return useMutation({
+    mutationFn: async (form: FormData) =>
+      unwrap(
+        await api.POST("/me/offers/parse-image", {
+          // The generated type describes the multipart fields; we send the FormData as-is.
+          body: form as unknown as { image: string },
+          bodySerializer: (b) => b as unknown as FormData,
+        }),
+      ),
+  });
+}
+
+export async function registerPushToken(api: ApiClient, token: string, platform: "ios" | "android" | "web") {
+  await api.POST("/me/push-tokens", { body: { token, platform } });
+}
+
+export async function unregisterPushToken(api: ApiClient, token: string) {
+  await api.DELETE("/me/push-tokens", { body: { token } });
+}

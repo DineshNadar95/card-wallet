@@ -129,10 +129,99 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/push-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register Push Token
+         * @description Called by the mobile app after notification permission is granted.
+         */
+        post: operations["register_push_token"];
+        /**
+         * Unregister Push Token
+         * @description Called on sign-out so a shared device stops getting this user's reminders.
+         */
+        delete: operations["unregister_push_token"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Offers
+         * @description `active` = not expired (includes ending soon); `ending_soon` = ends within 7 days.
+         */
+        get: operations["list_offers"];
+        put?: never;
+        /** Create Offer */
+        post: operations["create_offer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/offers/parse-image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Parse Offer Image
+         * @description Image in, draft offer out (each field with a confidence). Saves nothing.
+         */
+        post: operations["parse_offer_image"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/offers/{offer_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Offer */
+        get: operations["get_offer"];
+        put?: never;
+        post?: never;
+        /** Delete Offer */
+        delete: operations["delete_offer"];
+        options?: never;
+        head?: never;
+        /** Update Offer */
+        patch: operations["update_offer"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Body_parse_offer_image */
+        Body_parse_offer_image: {
+            /** Image */
+            image: string;
+        };
         /** CardDetail */
         CardDetail: {
             /** Id */
@@ -243,6 +332,39 @@ export interface components {
              */
             checked_at: string;
         };
+        /** FieldGuess[Category] */
+        FieldGuess_Category_: {
+            value: components["schemas"]["Category"] | null;
+            /** Confidence */
+            confidence: number;
+        };
+        /** FieldGuess[OfferKind] */
+        FieldGuess_OfferKind_: {
+            value: components["schemas"]["OfferKind"] | null;
+            /** Confidence */
+            confidence: number;
+        };
+        /** FieldGuess[date] */
+        FieldGuess_date_: {
+            /** Value */
+            value: string | null;
+            /** Confidence */
+            confidence: number;
+        };
+        /** FieldGuess[float] */
+        FieldGuess_float_: {
+            /** Value */
+            value: number | null;
+            /** Confidence */
+            confidence: number;
+        };
+        /** FieldGuess[str] */
+        FieldGuess_str_: {
+            /** Value */
+            value: string | null;
+            /** Confidence */
+            confidence: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -269,6 +391,143 @@ export interface components {
             code: string | null;
             /** Expires At */
             expires_at: string | null;
+        };
+        /** OfferCard */
+        OfferCard: {
+            /** User Card Id */
+            user_card_id: number;
+            /** Card Id */
+            card_id: number;
+            /** Name */
+            name: string;
+            /** Nickname */
+            nickname: string | null;
+            /** Last4 */
+            last4: string | null;
+        };
+        /** OfferCreate */
+        OfferCreate: {
+            /** User Card Id */
+            user_card_id?: number | null;
+            /** Merchant */
+            merchant: string;
+            kind: components["schemas"]["OfferKind"];
+            /** Value */
+            value?: number | null;
+            /** Max Back */
+            max_back?: number | null;
+            /** Min Spend */
+            min_spend?: number | null;
+            /** Code */
+            code?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            category?: components["schemas"]["Category"] | null;
+            /** Notes */
+            notes?: string | null;
+            /** @default typed */
+            source: components["schemas"]["OfferSource"];
+            /**
+             * Remind Days
+             * @default 0
+             * @enum {integer}
+             */
+            remind_days: 0 | 3 | 5 | 7;
+        };
+        /**
+         * OfferDraft
+         * @description What the photo reader saw. Nothing is saved; the user confirms in the UI.
+         */
+        OfferDraft: {
+            /** Is Offer */
+            is_offer: boolean;
+            merchant: components["schemas"]["FieldGuess_str_"];
+            kind: components["schemas"]["FieldGuess_OfferKind_"];
+            value: components["schemas"]["FieldGuess_float_"];
+            max_back: components["schemas"]["FieldGuess_float_"];
+            min_spend: components["schemas"]["FieldGuess_float_"];
+            expires_at: components["schemas"]["FieldGuess_date_"];
+            code: components["schemas"]["FieldGuess_str_"];
+            category: components["schemas"]["FieldGuess_Category_"];
+            notes: components["schemas"]["FieldGuess_str_"];
+        };
+        /**
+         * OfferKind
+         * @enum {string}
+         */
+        OfferKind: "percent_back" | "amount_off" | "points" | "code";
+        /** OfferOut */
+        OfferOut: {
+            /** Id */
+            id: number;
+            /** User Card Id */
+            user_card_id: number | null;
+            card: components["schemas"]["OfferCard"] | null;
+            /** Merchant */
+            merchant: string;
+            kind: components["schemas"]["OfferKind"];
+            /** Value */
+            value: number | null;
+            /** Max Back */
+            max_back: number | null;
+            /** Min Spend */
+            min_spend: number | null;
+            /** Code */
+            code: string | null;
+            /** Expires At */
+            expires_at: string | null;
+            category: components["schemas"]["Category"] | null;
+            /** Notes */
+            notes: string | null;
+            source: components["schemas"]["OfferSource"];
+            /** Remind Days */
+            remind_days: number;
+            /** Reminded At */
+            reminded_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "active" | "ending_soon" | "expired";
+            /** Days Left */
+            days_left: number | null;
+        };
+        /**
+         * OfferSource
+         * @enum {string}
+         */
+        OfferSource: "screenshot" | "typed" | "card_benefit";
+        /**
+         * OfferUpdate
+         * @description Any subset of fields; the merged result is validated as a whole.
+         */
+        OfferUpdate: {
+            /** User Card Id */
+            user_card_id?: number | null;
+            /** Merchant */
+            merchant?: string | null;
+            kind?: components["schemas"]["OfferKind"] | null;
+            /** Value */
+            value?: number | null;
+            /** Max Back */
+            max_back?: number | null;
+            /** Min Spend */
+            min_spend?: number | null;
+            /** Code */
+            code?: string | null;
+            /** Expires At */
+            expires_at?: string | null;
+            category?: components["schemas"]["Category"] | null;
+            /** Notes */
+            notes?: string | null;
+            source?: components["schemas"]["OfferSource"] | null;
+            /** Remind Days */
+            remind_days?: number | null;
         };
         /** PickOut */
         PickOut: {
@@ -314,6 +573,13 @@ export interface components {
             display_name?: string | null;
             /** Point Value Cents */
             point_value_cents?: number | null;
+        };
+        /** PushTokenIn */
+        PushTokenIn: {
+            /** Token */
+            token: string;
+            /** Platform */
+            platform?: ("ios" | "android" | "web") | null;
         };
         /**
          * RateUnit
@@ -669,6 +935,261 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    register_push_token: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushTokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unregister_push_token: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PushTokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_offers: {
+        parameters: {
+            query?: {
+                status?: ("active" | "ending_soon" | "expired") | null;
+                user_card_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfferOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_offer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfferCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfferOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    parse_offer_image: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_parse_offer_image"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfferDraft"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_offer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfferOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_offer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_offer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                offer_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfferUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OfferOut"];
+                };
             };
             /** @description Validation Error */
             422: {

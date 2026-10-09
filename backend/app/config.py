@@ -14,6 +14,19 @@ class Settings(BaseSettings):
     supabase_url: str = ""
     # Only for projects still on the legacy HS256 shared secret. Server-side only.
     supabase_jwt_secret: str = ""
+    # Photo reading (POST /me/offers/parse-image). Server-side only; never sent to clients.
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-opus-5-5"
+    # Reminder emails (any SMTP provider). Email reminders are off until SMTP_HOST is set.
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    email_from: str = ""
+    # Optional: only needed if "enhanced push security" is on in your Expo account.
+    expo_access_token: str = ""
+    # Link included in reminder emails.
+    web_app_url: str = "http://localhost:5173"
 
     @property
     def cors_origin_list(self) -> list[str]:

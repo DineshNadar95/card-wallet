@@ -9,11 +9,22 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
-import { AuthProvider } from "@/lib/auth";
+import { AuthProvider, useAuth } from "@/lib/auth";
+import { registerForPush } from "@/lib/push";
 import { fonts } from "@/lib/theme";
+
+/** After sign-in, register this device for reminder push notifications (best effort). */
+function PushRegistrar() {
+  const { session } = useAuth();
+  const userId = session?.user.id;
+  useEffect(() => {
+    if (userId) registerForPush(api).catch((e) => console.warn("Push registration failed", e));
+  }, [userId]);
+  return null;
+}
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
@@ -29,6 +40,7 @@ export default function RootLayout() {
     <ApiProvider client={api}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          <PushRegistrar />
           <StatusBar style="dark" />
           <Stack
             screenOptions={{
@@ -41,6 +53,7 @@ export default function RootLayout() {
             <Stack.Screen name="cards/[id]" options={{ title: "Card" }} />
             <Stack.Screen name="cards/add" options={{ title: "Add a card", presentation: "modal" }} />
             <Stack.Screen name="offers/new" options={{ title: "Add an offer", presentation: "modal" }} />
+            <Stack.Screen name="offers/[id]" options={{ title: "Offer" }} />
             <Stack.Screen name="settings" options={{ title: "Settings", presentation: "modal" }} />
           </Stack>
         </AuthProvider>

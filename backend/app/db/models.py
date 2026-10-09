@@ -199,6 +199,8 @@ class Profile(Base):
 
     user_id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
     display_name: Mapped[str | None] = mapped_column(String(200))
+    # Copied from the verified token on each /me call; used only for expiry reminders.
+    email: Mapped[str | None] = mapped_column(String(320))
     point_value_cents: Mapped[Decimal] = mapped_column(Numeric(5, 2), default=Decimal("1.0"))
     created_at: Mapped[datetime] = _now()
 
@@ -236,11 +238,26 @@ class Offer(Base):
     expires_at: Mapped[date | None] = mapped_column(Date)
     source: Mapped[OfferSource] = mapped_column(_enum(OfferSource, "offer_source"))
     image_path: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[str | None] = mapped_column(String(500))  # e.g. "In-store or online, one use"
     remind_days: Mapped[int] = mapped_column(Integer, default=0)  # 0 = off, or 3 / 5 / 7
     reminded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = _now()
 
+    user_card: Mapped["UserCard | None"] = relationship(lazy="joined")
+
     __table_args__ = (Index("ix_offers_reminder_due", "expires_at", "reminded_at"),)
 
 
-USER_TABLES = ("profiles", "user_cards", "offers")
+class PushToken(Base):
+    """Expo push tokens, one row per device."""
+
+    __tablename__ = "push_tokens"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(Uuid, index=True)
+    token: Mapped[str] = mapped_column(String(200), unique=True)
+    platform: Mapped[str | None] = mapped_column(String(20))
+    created_at: Mapped[datetime] = _now()
+
+
+USER_TABLES = ("profiles", "user_cards", "offers", "push_tokens")

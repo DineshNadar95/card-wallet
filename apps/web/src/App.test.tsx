@@ -1,11 +1,15 @@
 import { ApiProvider, createApiClient } from "@card-wallet/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "./App";
+
+vi.mock("./lib/image", () => ({
+  prepareImage: async (f: File) => new Blob([await f.arrayBuffer()], { type: "image/jpeg" }),
+}));
 import { AuthProvider } from "./auth";
 
 const CARD = {
@@ -30,6 +34,19 @@ let posted: unknown[] = [];
 let picks: unknown[] = [];
 let requested: string[] = [];
 let pointValue = 1;
+let offers: Record<string, unknown>[] = [];
+let offerPosts: unknown[] = [];
+let offerPatches: unknown[] = [];
+let deleted: number[] = [];
+let parseResult: { status: number; body: unknown } = { status: 200, body: {} };
+let parseUploads = 0;
+
+const OFFER = (id: number, merchant: string, status: string, extra = {}) => ({
+  id, user_card_id: null, card: null, merchant, kind: "amount_off", value: 100, max_back: null, min_spend: null,
+  code: null, expires_at: "2026-10-13", category: null, notes: null, source: "typed", remind_days: 3,
+  reminded_at: null, created_at: "", status, days_left: status === "expired" ? -2 : 4, ...extra,
+});
+const guess = (value: unknown, confidence = 0.9) => ({ value, confidence });
 
 const RATE = { category: "dining", rate: 4, unit: "points", annual_cap: null, conditions: null,
   source_url: "https://demo-bank.test/a", checked_at: "2026-10-04T00:00:00Z" };
@@ -44,6 +61,12 @@ function mockApi() {
   picks = [];
   requested = [];
   pointValue = 1;
+  offers = [];
+  offerPosts = [];
+  offerPatches = [];
+  deleted = [];
+  parseUploads = 0;
+  parseResult = { status: 200, body: {} };
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: Request) => {
@@ -57,6 +80,33 @@ function mockApi() {
         return Response.json(walletCards.at(-1), { status: 201 });
       }
       if (url.pathname === "/me/cards") return Response.json(walletCards);
+      if (url.pathname === "/me/offers/parse-image") {
+        parseUploads++;
+        return Response.json(parseResult.body, { status: parseResult.status });
+      }
+      const offerMatch = url.pathname.match(/^\/me\/offers\/(\d+)$/);
+      if (offerMatch) {
+        const id = Number(offerMatch[1]);
+        if (input.method === "DELETE") {
+          deleted.push(id);
+          return new Response(null, { status: 204 });
+        }
+        if (input.method === "PATCH") {
+          offerPatches.push(await input.json());
+          return Response.json(offers.find((o) => o.id === id));
+        }
+        const found = offers.find((o) => o.id === id);
+        return found ? Response.json(found) : Response.json({ detail: "Offer not found" }, { status: 404 });
+      }
+      if (url.pathname === "/me/offers" && input.method === "POST") {
+        const b = await input.json();
+        offerPosts.push(b);
+        return Response.json(OFFER(99, b.merchant, "active"), { status: 201 });
+      }
+      if (url.pathname === "/me/offers") {
+        const st = url.searchParams.get("status");
+        return Response.json(offers.filter((o) => !st || (st === "active" ? o.status !== "expired" : o.status === st)));
+      }
       if (url.pathname === "/me/recommend") {
         requested.push(url.searchParams.get("category")!);
         return Response.json({ category: url.searchParams.get("category"), merchant: null, point_value_cents: pointValue, picks });
@@ -232,5 +282,104 @@ describe("home", () => {
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     await screen.findByText((_, el) => el?.tagName === "P" && /Points valued at 1\.5¢/.test(el.textContent ?? ""));
     expect(requested.length).toBeGreaterThan(1); // ranking refetched with the new value
+  });
+});
+
+describe("offers", () => {
+  it("lists offers by tab, with the design's wording", async () => {
+    offers = [
+      OFFER(1, "Demo Phone Co.", "ending_soon", { notes: "Upgrade coupon" }),
+      OFFER(2, "Demo Shoes", "active", { kind: "percent_back", value: 25, expires_at: "2026-11-30", days_left: 52 }),
+      OFFER(3, "Demo Old", "expired"),
+    ];
+    renderAt("/app/offers", { signedIn: true });
+    const first = (await screen.findByText("Demo Phone Co.")).closest("a")!;
+    expect(first).toHaveAttribute("href", "/app/offers/1");
+    expect(within(first).getByText("$100 off")).toBeInTheDocument();
+    expect(within(first).getByText("Ends in 4 days")).toHaveClass("urgent");
+    expect(within(first).getByText(/Coupon · no card/)).toBeInTheDocument();
+    expect(screen.getByText("Ends Nov 30, 2026")).toBeInTheDocument();
+    expect(screen.queryByText("Demo Old")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Expired" }));
+    expect(await screen.findByText("Demo Old")).toBeInTheDocument();
+    expect(screen.queryByText("Demo Shoes")).not.toBeInTheDocument();
+  });
+
+  it("adds a typed store coupon", async () => {
+    renderAt("/app/offers/new", { signedIn: true });
+    fireEvent.click(await screen.findByRole("tab", { name: "Type it in" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save offer" }));
+    expect(await screen.findByText("Add the merchant or store")).toBeInTheDocument();
+    expect(offerPosts).toEqual([]);
+
+    fireEvent.change(screen.getByLabelText("Merchant or store"), { target: { value: "Demo Shoes" } });
+    fireEvent.click(screen.getByRole("button", { name: "$ off" }));
+    fireEvent.change(screen.getByLabelText("Value"), { target: { value: "20" } });
+    fireEvent.change(screen.getByLabelText("Expires"), { target: { value: "2026-10-31" } });
+    fireEvent.click(screen.getByRole("button", { name: "1 week" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save offer" }));
+
+    await waitFor(() => expect(offerPosts).toHaveLength(1));
+    expect(offerPosts[0]).toEqual({
+      user_card_id: null, merchant: "Demo Shoes", kind: "amount_off", value: 20, max_back: null, min_spend: null,
+      expires_at: "2026-10-31", code: null, category: null, notes: null, source: "typed", remind_days: 7,
+    });
+  });
+
+  it("reads a photo into a draft the user confirms", async () => {
+    parseResult = {
+      status: 200,
+      body: {
+        is_offer: true, merchant: guess("Demo Bistro"), kind: guess("percent_back"), value: guess(10),
+        max_back: guess(15, 0.4), min_spend: guess(50), expires_at: guess("2026-10-31"),
+        code: guess(null, 0), category: guess("dining"), notes: guess(null, 0),
+      },
+    };
+    renderAt("/app/offers/new", { signedIn: true });
+    const file = new File(["fake-bytes"], "shot.png", { type: "image/png" });
+    fireEvent.change(await screen.findByLabelText(/Choose a photo/), { target: { files: [file] } });
+
+    expect(await screen.findByText("Read 6 details from your screenshot")).toBeInTheDocument();
+    expect(screen.getByLabelText("Merchant or store")).toHaveValue("Demo Bistro");
+    expect(screen.getByLabelText("Value")).toHaveValue("10");
+    // Low-confidence fields are flagged for a second look.
+    const maxBack = screen.getByLabelText("Max back").closest(".field")!;
+    expect(within(maxBack as HTMLElement).getByText("Check this")).toBeInTheDocument();
+    expect(parseUploads).toBe(1);
+    expect(offerPosts).toEqual([]); // nothing saved until the user confirms
+
+    fireEvent.click(screen.getByRole("button", { name: "Save offer" }));
+    await waitFor(() => expect(offerPosts).toHaveLength(1));
+    expect(offerPosts[0]).toMatchObject({ merchant: "Demo Bistro", kind: "percent_back", value: 10, source: "screenshot" });
+  });
+
+  it("explains when a photo can't be read", async () => {
+    parseResult = { status: 422, body: { detail: "We couldn't read that image. Try a clearer photo, or type it in." } };
+    renderAt("/app/offers/new", { signedIn: true });
+    const file = new File(["x"], "shot.png", { type: "image/png" });
+    fireEvent.change(await screen.findByLabelText(/Choose a photo/), { target: { files: [file] } });
+    expect(await screen.findByText(/couldn't read that image/)).toBeInTheDocument();
+  });
+
+  it("edits and deletes an offer", async () => {
+    offers = [OFFER(5, "Demo Bistro", "active")];
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderAt("/app/offers/5", { signedIn: true });
+    const merchant = await screen.findByLabelText("Merchant or store");
+    expect(merchant).toHaveValue("Demo Bistro");
+    fireEvent.change(merchant, { target: { value: "Demo Cafe" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() => expect(offerPatches).toHaveLength(1));
+    expect(offerPatches[0]).toMatchObject({ merchant: "Demo Cafe" });
+    expect(offerPatches[0]).not.toHaveProperty("source");
+  });
+
+  it("deletes after confirming", async () => {
+    offers = [OFFER(6, "Demo Bistro", "active")];
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderAt("/app/offers/6", { signedIn: true });
+    fireEvent.click(await screen.findByRole("button", { name: "Delete" }));
+    await waitFor(() => expect(deleted).toEqual([6]));
   });
 });

@@ -77,6 +77,10 @@ def to_out(o: Offer, today: date) -> OfferOut:
         created_at=o.created_at,
         status=st,
         days_left=days,
+        place_lat=o.place_lat,
+        place_lng=o.place_lng,
+        place_radius_m=o.place_radius_m,
+        place_label=o.place_label,
     )
 
 

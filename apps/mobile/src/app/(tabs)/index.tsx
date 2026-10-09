@@ -96,16 +96,16 @@ function Other({ pick }: { pick: CardPick }) {
   );
 }
 
-function ScanSoon() {
-  // Main.dc.html: location-based suggestions are Phase 7.
+function ScanButton() {
+  // Main.dc.html "Scan where I am": nearby saved offers + best card, from one location read.
   return (
-    <View style={st.scan} accessibilityState={{ disabled: true }}>
+    <Pressable accessibilityRole="button" style={st.scan} onPress={() => router.push("/scan")}>
       <Svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke={colors.textSecondary} strokeWidth={2}>
         <Path d="M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11z" />
         <Circle cx="12" cy="10" r="2.5" />
       </Svg>
-      <Text style={st.scanText}>Scan where I am · coming soon</Text>
-    </View>
+      <Text style={st.scanText}>Scan where I am</Text>
+    </Pressable>
   );
 }
 
@@ -123,7 +123,7 @@ function Recommendations() {
       contentContainerStyle={s.body}
       refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
     >
-      <ScanSoon />
+      <ScanButton />
       <Chips value={category} onChange={setCategory} />
 
       {isPending && <Loading />}

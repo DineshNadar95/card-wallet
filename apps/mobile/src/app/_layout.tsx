@@ -1,4 +1,4 @@
-import { ApiProvider, colors } from "@card-wallet/shared";
+import { ApiProvider, colors, useOffers } from "@card-wallet/shared";
 import {
   IBMPlexSans_400Regular,
   IBMPlexSans_500Medium,
@@ -7,12 +7,15 @@ import {
   useFonts,
 } from "@expo-google-fonts/ibm-plex-sans";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
+import * as Notifications from "expo-notifications";
+import { AppState } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
 import { AuthProvider, useAuth } from "@/lib/auth";
+import { syncGeofences } from "@/lib/geofence"; // also defines the background task
 import { registerForPush } from "@/lib/push";
 import { fonts } from "@/lib/theme";
 
@@ -23,6 +26,32 @@ function PushRegistrar() {
   useEffect(() => {
     if (userId) registerForPush(api).catch((e) => console.warn("Push registration failed", e));
   }, [userId]);
+  return null;
+}
+
+/** Keep iOS geofences in step with the user's offers (no-op unless they opted in). */
+function GeofenceSync() {
+  const { session } = useAuth();
+  const { data: offers, refetch } = useOffers({ status: "active" }, !!session);
+  useEffect(() => {
+    if (offers) syncGeofences(offers).catch((e) => console.warn("Geofence sync failed", e));
+  }, [offers]);
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (s) => s === "active" && session && refetch());
+    return () => sub.remove();
+  }, [session, refetch]);
+  return null;
+}
+
+/** Tapping a "you're near" alert opens that offer. */
+function NotificationRouter() {
+  useEffect(() => {
+    const sub = Notifications.addNotificationResponseReceivedListener((r) => {
+      const id = r.notification.request.content.data?.offerId;
+      if (typeof id === "number") router.push({ pathname: "/offers/[id]", params: { id } });
+    });
+    return () => sub.remove();
+  }, []);
   return null;
 }
 
@@ -41,6 +70,8 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <PushRegistrar />
+          <GeofenceSync />
+          <NotificationRouter />
           <StatusBar style="dark" />
           <Stack
             screenOptions={{
@@ -55,6 +86,7 @@ export default function RootLayout() {
             <Stack.Screen name="offers/new" options={{ title: "Add an offer", presentation: "modal" }} />
             <Stack.Screen name="offers/[id]" options={{ title: "Offer" }} />
             <Stack.Screen name="settings" options={{ title: "Settings", presentation: "modal" }} />
+            <Stack.Screen name="scan" options={{ title: "Where you are", presentation: "modal" }} />
           </Stack>
         </AuthProvider>
       </QueryClientProvider>

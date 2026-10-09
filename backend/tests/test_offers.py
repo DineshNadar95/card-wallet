@@ -187,3 +187,54 @@ def test_delete(login):
     o = api.post("/me/offers", json=body()).json()
     assert api.delete(f"/me/offers/{o['id']}").status_code == 204
     assert api.get("/me/offers").json() == []
+
+
+# ------------------------------------------------------------------ store pins (Phase 7)
+
+
+def test_store_pin_round_trips(login):
+    api = login(USER_A)
+    o = api.post(
+        "/me/offers",
+        json=body(
+            place_lat=40.7411,
+            place_lng=-73.9897,
+            place_radius_m=150,
+            place_label="Demo Bistro, 5th Ave",
+        ),
+    ).json()
+    assert (o["place_lat"], o["place_lng"], o["place_radius_m"], o["place_label"]) == (
+        40.7411,
+        -73.9897,
+        150,
+        "Demo Bistro, 5th Ave",
+    )
+    cleared = api.patch(
+        f"/me/offers/{o['id']}", json={"place_lat": None, "place_lng": None, "place_radius_m": None}
+    ).json()
+    assert cleared["place_lat"] is None and cleared["place_lng"] is None
+
+
+def test_offers_without_pins_still_work(login):
+    o = login(USER_A).post("/me/offers", json=body()).json()
+    assert o["place_lat"] is None and o["place_radius_m"] is None
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"place_lat": 40.7},  # lat without lng
+        {"place_lng": -73.9},  # lng without lat
+        {"place_lat": 91, "place_lng": 0},
+        {"place_lat": 0, "place_lng": -181},
+        {
+            "place_lat": 40.7,
+            "place_lng": -73.9,
+            "place_radius_m": 50,
+        },  # too small to trigger reliably
+        {"place_lat": 40.7, "place_lng": -73.9, "place_radius_m": 5000},
+        {"place_radius_m": 150},  # radius without a pin
+    ],
+)
+def test_store_pin_validation(login, bad):
+    assert login(USER_A).post("/me/offers", json=body(**bad)).status_code == 422

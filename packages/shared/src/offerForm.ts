@@ -29,6 +29,9 @@ export type OfferFormValues = {
   category: Category | "";
   notes: string;
   remind_days: 0 | 3 | 5 | 7;
+  /** Optional store pin (Phase 7). Set from "Use my current location"; never typed by hand. */
+  place: { lat: number; lng: number } | null;
+  place_label: string;
 };
 
 export const emptyOffer = (cardId?: string): OfferFormValues => ({
@@ -43,6 +46,8 @@ export const emptyOffer = (cardId?: string): OfferFormValues => ({
   category: "",
   notes: "",
   remind_days: 3,
+  place: null,
+  place_label: "",
 });
 
 const str = (v: number | string | null | undefined) => (v == null ? "" : String(v));
@@ -79,6 +84,10 @@ export function toInput(v: OfferFormValues, source: OfferInput["source"]): Offer
     notes: v.notes.trim() || null,
     source,
     remind_days: v.remind_days,
+    place_lat: v.place?.lat ?? null,
+    place_lng: v.place?.lng ?? null,
+    place_radius_m: null,
+    place_label: v.place ? v.place_label.trim() || null : null,
   };
 }
 

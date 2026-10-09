@@ -535,6 +535,14 @@ export interface components {
              * @enum {integer}
              */
             remind_days: 0 | 3 | 5 | 7;
+            /** Place Lat */
+            place_lat?: number | null;
+            /** Place Lng */
+            place_lng?: number | null;
+            /** Place Radius M */
+            place_radius_m?: number | null;
+            /** Place Label */
+            place_label?: string | null;
         };
         /**
          * OfferDraft
@@ -598,6 +606,14 @@ export interface components {
             status: "active" | "ending_soon" | "expired";
             /** Days Left */
             days_left: number | null;
+            /** Place Lat */
+            place_lat?: number | null;
+            /** Place Lng */
+            place_lng?: number | null;
+            /** Place Radius M */
+            place_radius_m?: number | null;
+            /** Place Label */
+            place_label?: string | null;
         };
         /**
          * OfferSource
@@ -630,6 +646,14 @@ export interface components {
             source?: components["schemas"]["OfferSource"] | null;
             /** Remind Days */
             remind_days?: number | null;
+            /** Place Lat */
+            place_lat?: number | null;
+            /** Place Lng */
+            place_lng?: number | null;
+            /** Place Radius M */
+            place_radius_m?: number | null;
+            /** Place Label */
+            place_label?: string | null;
         };
         /** PickOut */
         PickOut: {

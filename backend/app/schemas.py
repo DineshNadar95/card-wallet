@@ -143,6 +143,19 @@ class _OfferFields(BaseModel):
     notes: str | None = Field(default=None, max_length=500)
     source: OfferSource = OfferSource.typed
     remind_days: Literal[0, 3, 5, 7] = 0
+    # Optional store pin for location alerts. Android needs >= 100-150 m to trigger reliably.
+    place_lat: float | None = Field(default=None, ge=-90, le=90)
+    place_lng: float | None = Field(default=None, ge=-180, le=180)
+    place_radius_m: int | None = Field(default=None, ge=100, le=2000)
+    place_label: str | None = Field(default=None, max_length=200)
+
+    @model_validator(mode="after")
+    def _pin_is_complete(self):
+        if (self.place_lat is None) != (self.place_lng is None):
+            raise ValueError("a store pin needs both latitude and longitude")
+        if self.place_radius_m is not None and self.place_lat is None:
+            raise ValueError("a radius needs a store pin")
+        return self
 
     @model_validator(mode="after")
     def _value_matches_kind(self):
@@ -176,6 +189,10 @@ class OfferUpdate(BaseModel):
     notes: str | None = None
     source: OfferSource | None = None
     remind_days: int | None = None
+    place_lat: float | None = None
+    place_lng: float | None = None
+    place_radius_m: int | None = None
+    place_label: str | None = None
 
 
 class OfferCard(BaseModel):
@@ -205,6 +222,10 @@ class OfferOut(BaseModel):
     created_at: datetime
     status: OfferStatus
     days_left: int | None
+    place_lat: float | None = None
+    place_lng: float | None = None
+    place_radius_m: int | None = None
+    place_label: str | None = None
 
 
 class FieldGuess[T](BaseModel):

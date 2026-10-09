@@ -136,6 +136,31 @@ uv run pytest -q
 
 Render runs it as a Docker cron (`scraper/Dockerfile`, schedule in `render.yaml`).
 
+## Location alerts (mobile, Phase 7)
+
+Offers can carry an optional **store pin** ("Pin this store: use my current location"). The
+user's own location never goes to the server; only pins they choose to save. All matching
+happens on the device (`packages/shared/src/geo.ts`).
+
+- **Scan where I am** (iOS + Android, foreground): one location read, shows pinned offers
+  within ~400 m and the best card for what you're buying.
+- **Remind me near saved offers** (iOS only, opt-in in Settings): background geofences.
+- **Android has no background location.** The manifest blocks `ACCESS_BACKGROUND_LOCATION`;
+  nearby offers are foreground only.
+
+Platform limits, checked October 2026:
+
+| | iOS | Android |
+|---|---|---|
+| Monitored regions | 20 per app, all types ([Apple](https://developer.apple.com/tutorials/data/documentation/corelocation/monitoring-the-user-s-proximity-to-geographic-regions.md)) | 100 per app ([Android](https://developer.android.com/develop/sensors-and-location/location/geofencing)) |
+| Radius | — | ≥ 100–150 m recommended; we default to 150 m (allowed 100–2,000) |
+| App closed | iOS relaunches the app for region events | Expo doesn't restart a killed app for geofence events ([Expo](https://docs.expo.dev/versions/v57.0.0/sdk/location/)) |
+| Store policy | "Always" needs a clear purpose string | Play generally rejects background location for offers/convenience ([Play policy](https://support.google.com/googleplay/android-developer/answer/9799150)) |
+
+To stay under iOS's 20, the app watches the **19 nearest** pinned offers plus one "refresh"
+region around you; leaving it re-picks the nearest 19. Alerts repeat at most once per 12 h per
+offer. Background location needs a development or production build (not Expo Go).
+
 ## Shared API client
 
 `packages/shared` holds TS types generated from the backend's OpenAPI schema, a typed

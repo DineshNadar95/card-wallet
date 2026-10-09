@@ -20,6 +20,8 @@ function fromOffer(o: Offer): OfferFormValues {
     category: o.category ?? "",
     notes: o.notes ?? "",
     remind_days: ([0, 3, 5, 7].includes(o.remind_days) ? o.remind_days : 0) as 0 | 3 | 5 | 7,
+    place: o.place_lat != null && o.place_lng != null ? { lat: o.place_lat, lng: o.place_lng } : null,
+    place_label: o.place_label ?? "",
   };
 }
 

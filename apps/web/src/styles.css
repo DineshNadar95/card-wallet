@@ -1609,3 +1609,11 @@ table.catalog {
     width: 40px;
   }
 }
+
+/* store pin (Phase 7) */
+.pin {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}

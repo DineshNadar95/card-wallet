@@ -335,6 +335,29 @@ describe("offers", () => {
     expect(offerPosts[0]).toEqual({
       user_card_id: null, merchant: "Demo Shoes", kind: "amount_off", value: 20, max_back: null, min_spend: null,
       expires_at: "2026-10-31", code: null, category: null, notes: null, source: "typed", remind_days: 7,
+      place_lat: null, place_lng: null, place_radius_m: null, place_label: null,
+    });
+  });
+
+  it("pins the store from the browser's location, only when asked", async () => {
+    const getCurrentPosition = vi.fn((ok: PositionCallback) =>
+      ok({ coords: { latitude: 40.74112345, longitude: -73.98971234 } } as GeolocationPosition),
+    );
+    vi.stubGlobal("navigator", { ...navigator, geolocation: { getCurrentPosition } });
+    renderAt("/app/offers/new", { signedIn: true });
+    fireEvent.click(await screen.findByRole("tab", { name: "Type it in" }));
+    fireEvent.change(screen.getByLabelText("Merchant or store"), { target: { value: "Demo Bistro" } });
+    fireEvent.change(screen.getByLabelText("Value"), { target: { value: "10" } });
+    expect(getCurrentPosition).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: /Pin this store/ }));
+    expect(screen.getByLabelText("Store name for the pin")).toHaveValue("Demo Bistro");
+    expect(screen.getByText("Pinned at 40.7411, -73.9897")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Save offer" }));
+
+    await waitFor(() => expect(offerPosts).toHaveLength(1));
+    expect(offerPosts[0]).toMatchObject({
+      place_lat: 40.741123, place_lng: -73.989712, place_radius_m: null, place_label: "Demo Bistro",
     });
   });
 

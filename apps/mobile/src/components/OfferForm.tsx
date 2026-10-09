@@ -10,6 +10,7 @@ import {
   useMyCards,
 } from "@card-wallet/shared";
 import { type ReactNode, useState } from "react";
+import * as Location from "expo-location";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Button, s } from "@/components/ui";
@@ -102,6 +103,52 @@ function Input({
         autoCorrect={false}
       />
       {suffix && <Text style={st.affixText}>{suffix}</Text>}
+    </View>
+  );
+}
+
+/** Optional store pin (Phase 7): one foreground location read, only when the user taps it. */
+function StorePin({ values, onChange }: { values: OfferFormValues; onChange: (v: OfferFormValues) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function locate() {
+    setBusy(true);
+    setError(null);
+    try {
+      const perm = await Location.requestForegroundPermissionsAsync();
+      if (!perm.granted) return setError("Location is off for Card Wallet.");
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      onChange({
+        ...values,
+        place: { lat: +pos.coords.latitude.toFixed(6), lng: +pos.coords.longitude.toFixed(6) },
+        place_label: values.place_label || values.merchant,
+      });
+    } catch {
+      setError("Couldn't get your location.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <View>
+      <Label text="Store location" id="pinLabel" optional />
+      {values.place ? (
+        <View style={{ gap: 6 }}>
+          <Input id="pinLabel" value={values.place_label} onChange={(v) => onChange({ ...values, place_label: v })} placeholder="e.g. Demo Bistro, 5th Ave" />
+          <Text style={st.hint}>
+            Pinned at {values.place.lat.toFixed(4)}, {values.place.lng.toFixed(4)}
+          </Text>
+          <Text style={[st.hint, { color: colors.accent }]} accessibilityRole="button" onPress={() => onChange({ ...values, place: null })}>
+            Remove pin
+          </Text>
+        </View>
+      ) : (
+        <Button label={busy ? "Locating…" : "Pin this store: use my location"} kind="outline" onPress={locate} disabled={busy} />
+      )}
+      <Text style={st.hint}>At the store? Pin it to get reminded when you're nearby.</Text>
+      {error && <Text style={st.error}>{error}</Text>}
     </View>
   );
 }
@@ -227,6 +274,8 @@ export function OfferForm({
         <Label text="Notes" id="notesLabel" conf={conf("notes")} optional />
         <Input id="notesLabel" value={values.notes} onChange={(v) => set("notes", v)} placeholder="e.g. One use, in-store only" max={500} />
       </View>
+
+      <StorePin values={values} onChange={onChange} />
 
       <View style={st.remind}>
         <Label text="Remind me before it ends" id="remindLabel" />

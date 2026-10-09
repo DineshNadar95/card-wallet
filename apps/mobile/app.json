@@ -18,7 +18,10 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.example.cardwallet"
+      "package": "com.example.cardwallet",
+      "blockedPermissions": [
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,7 +37,17 @@
           "cameraPermission": "Card Wallet reads offer and coupon details from photos you take."
         }
       ],
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Card Wallet uses your location to show saved offers near you and to pin a store to an offer.",
+          "locationAlwaysAndWhenInUsePermission": "Allow \u201cAlways\u201d so Card Wallet can remind you when you're near a store where you saved an offer, even when the app is closed. Only the stores you pin are saved; your location history is not.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": false,
+          "isAndroidForegroundServiceEnabled": false
+        }
+      ]
     ],
     "scheme": "cardwallet"
   }

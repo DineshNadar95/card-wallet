@@ -14,6 +14,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     Enum,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -241,6 +242,12 @@ class Offer(Base):
     source: Mapped[OfferSource] = mapped_column(_enum(OfferSource, "offer_source"))
     image_path: Mapped[str | None] = mapped_column(Text)
     notes: Mapped[str | None] = mapped_column(String(500))  # e.g. "In-store or online, one use"
+    # Optional store pin set by the user ("use my current location"), for location alerts.
+    # The user's own live location is never sent to the server; only pins they choose to save.
+    place_lat: Mapped[float | None] = mapped_column(Float)
+    place_lng: Mapped[float | None] = mapped_column(Float)
+    place_radius_m: Mapped[int | None] = mapped_column(Integer)
+    place_label: Mapped[str | None] = mapped_column(String(200))
     remind_days: Mapped[int] = mapped_column(Integer, default=0)  # 0 = off, or 3 / 5 / 7
     reminded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = _now()

@@ -53,6 +53,69 @@ function Field({
   );
 }
 
+/** Optional store pin for location alerts. Uses the browser's location once, on request. */
+function StorePin({ values, onChange }: { values: OfferFormValues; onChange: (v: OfferFormValues) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function locate() {
+    if (!("geolocation" in navigator)) return setError("This browser can't share its location.");
+    setBusy(true);
+    setError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setBusy(false);
+        onChange({
+          ...values,
+          place: { lat: +pos.coords.latitude.toFixed(6), lng: +pos.coords.longitude.toFixed(6) },
+          place_label: values.place_label || values.merchant,
+        });
+      },
+      (err) => {
+        setBusy(false);
+        setError(err.code === err.PERMISSION_DENIED ? "Location permission is off for this site." : "Couldn't get your location.");
+      },
+      { enableHighAccuracy: true, timeout: 15_000 },
+    );
+  }
+
+  return (
+    <div className="field">
+      <div className="field-label">
+        <span>
+          Store location <span className="muted normal">(optional)</span>
+        </span>
+      </div>
+      {values.place ? (
+        <div className="pin">
+          <input
+            aria-label="Store name for the pin"
+            value={values.place_label}
+            maxLength={200}
+            placeholder="e.g. Demo Bistro, 5th Ave"
+            onChange={(e) => onChange({ ...values, place_label: e.target.value })}
+          />
+          <span className="small muted">
+            Pinned at {values.place.lat.toFixed(4)}, {values.place.lng.toFixed(4)}
+          </span>
+          <button type="button" className="link-button" onClick={() => onChange({ ...values, place: null })}>
+            Remove pin
+          </button>
+        </div>
+      ) : (
+        <button type="button" className="btn btn-outline" onClick={locate} disabled={busy}>
+          {busy ? "Locating…" : "Pin this store: use my current location"}
+        </button>
+      )}
+      <small className="muted">
+        At the store? Pin it and the mobile app can remind you when you're nearby. Only this pin is
+        saved, never your location history.
+      </small>
+      {error && <small className="error">{error}</small>}
+    </div>
+  );
+}
+
 export function OfferForm({
   values,
   onChange,
@@ -181,6 +244,8 @@ export function OfferForm({
       <Field id="notes" label={<>Notes <span className="muted normal">(optional)</span></>} conf={conf("notes")}>
         <input id="notes" value={values.notes} maxLength={500} placeholder="e.g. One use, in-store only" onChange={(e) => set("notes", e.target.value)} />
       </Field>
+
+      <StorePin values={values} onChange={onChange} />
 
       <div className="field remind">
         <span id="remind-label" className="field-label">

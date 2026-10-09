@@ -1,6 +1,7 @@
 export { type ApiClient, type ApiClientOptions, createApiClient } from "./client";
 export * from "./compare";
 export * from "./format";
+export * from "./geo";
 export * from "./offerForm";
 export {
   type AddCardInput,

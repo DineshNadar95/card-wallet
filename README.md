@@ -29,6 +29,7 @@ npm run dev:mobile   # Expo dev server; press i / a, or scan with Expo Go
 
 ```bash
 npm test             # web (vitest) + backend (pytest)
+cd scraper && uv run pytest -q
 npm run typecheck    # all TS packages
 cd backend && uv run ruff check .
 ```
@@ -104,6 +105,33 @@ the token. Every `/me/*` query filters by it; Row Level Security is a second lay
   `reminded_at`. A skipped day catches up the next day; nothing is marked unless delivered.
 - Push needs an EAS project id in the mobile app (`npx eas-cli init` in `apps/mobile`) and a
   development or production build: Expo Go can't receive push on Android.
+
+## Weekly rewards scraper (`scraper/`)
+
+Earn rates come only from issuer product pages (`scraper/targets.yaml`, 29 cards). Each Sunday:
+
+1. **Fetch** with headless Chromium as `CardWalletBot`, honoring robots.txt (incl. Crawl-delay),
+   ≥10 s between requests per host. CAPTCHAs, login walls and bot blocks are logged and
+   skipped, never worked around. Aggregator domains are refused at load time.
+2. **Extract** with Claude from the page text only (no web search, no prior knowledge). Every
+   rate must carry a verbatim quote from the page.
+3. **Stage** every row in `card_earn_rates_staging` with its quote, URL and time.
+4. **Validate**: complete, plausible (≤12% / ≤20x), quote really on the page and containing the
+   rate, unit unchanged, and not more than 2x (or under half) the live value.
+5. **Promote** passing rows in one transaction, old values to `card_earn_rates_history`. If
+   fewer than half the cards refresh, or anything throws, nothing is promoted. Flagged rows
+   stay in staging and the owner (`OWNER_EMAIL`) gets an email with the quote and page link.
+6. Everything is recorded in `scrape_runs`.
+
+```bash
+cd scraper && uv sync && uv run playwright install chromium
+uv run python -m scraper --fetch-only            # are all pages reachable and allowed?
+uv run python -m scraper --only "Sapphire" --no-promote   # stage + validate one card
+uv run python -m scraper                         # full run
+uv run pytest -q
+```
+
+Render runs it as a Docker cron (`scraper/Dockerfile`, schedule in `render.yaml`).
 
 ## Shared API client
 

@@ -1,0 +1,107 @@
+# Cards the weekly scraper refreshes. One issuer product page per card.
+#
+# Rules (CLAUDE.md): issuer pages only, never aggregators (NerdWallet, The Points Guy, ...).
+# `issuer` and `name` must match the catalog exactly (as imported from CFPB TCCP).
+# Check every URL after editing:  uv run python -m scraper --fetch-only
+cards:
+  # --- Starter set: fetched and verified 2026-10-09 (robots.txt allows, no bot wall) ---
+  - issuer: "Jpmorgan Chase Bank, National Association"
+    name: "Sapphire Preferred"
+    url: "https://creditcards.chase.com/rewards-credit-cards/sapphire/preferred"
+  - issuer: "Citibank, N.A."
+    name: "Citi Double Cash Card"
+    url: "https://www.citi.com/credit-cards/citi-double-cash-credit-card"
+  - issuer: "American Express National Bank"
+    name: "Blue Cash Preferred® Card"
+    url: "https://www.americanexpress.com/us/credit-cards/card/blue-cash-preferred/"
+
+  # --- Scale-up set: not fetch-verified yet; run --fetch-only once before the first run ---
+  # Chase
+  - issuer: "Jpmorgan Chase Bank, National Association"
+    name: "Sapphire Reserve"
+    url: "https://creditcards.chase.com/rewards-credit-cards/sapphire/reserve"
+  - issuer: "Jpmorgan Chase Bank, National Association"
+    name: "Freedom Unlimited"
+    url: "https://creditcards.chase.com/cash-back-credit-cards/freedom/unlimited"
+  - issuer: "Jpmorgan Chase Bank, National Association"
+    name: "Freedom Flex"
+    url: "https://creditcards.chase.com/cash-back-credit-cards/freedom/flex"
+  - issuer: "Jpmorgan Chase Bank, National Association"
+    name: "Amazon Prime Rewards Visa Card"
+    url: "https://creditcards.chase.com/cash-back-credit-cards/amazon-prime-rewards"
+  - issuer: "Jpmorgan Chase Bank, National Association"
+    name: "United Explorer Card"
+    url: "https://creditcards.chase.com/travel-credit-cards/united/united-explorer"
+  - issuer: "Jpmorgan Chase Bank, National Association"
+    name: "United Quest Card"
+    url: "https://creditcards.chase.com/travel-credit-cards/united/united-quest"
+  - issuer: "Jpmorgan Chase Bank, National Association"
+    name: "Southwest® Rapid Rewards® Plus Credit Card"
+    url: "https://creditcards.chase.com/travel-credit-cards/southwest/plus"
+
+  # American Express
+  - issuer: "American Express National Bank"
+    name: "American Express® Gold Card"
+    url: "https://www.americanexpress.com/us/credit-cards/card/gold-card/"
+  - issuer: "American Express National Bank"
+    name: "The Platinum Card®"
+    url: "https://www.americanexpress.com/us/credit-cards/card/platinum/"
+  - issuer: "American Express National Bank"
+    name: "Blue Cash Everyday® Card"
+    url: "https://www.americanexpress.com/us/credit-cards/card/blue-cash-everyday/"
+  - issuer: "American Express National Bank"
+    name: "American Express® Green Card"
+    url: "https://www.americanexpress.com/us/credit-cards/card/green/"
+
+  # Citi
+  - issuer: "Citibank, N.A."
+    name: "Citi Custom Cash"
+    url: "https://www.citi.com/credit-cards/citi-custom-cash-credit-card"
+  - issuer: "Citibank, N.A."
+    name: "Citi Strata Premier"
+    url: "https://www.citi.com/credit-cards/citi-strata-premier-credit-card"
+  - issuer: "Citibank, N.A."
+    name: "Costco Anywhere Visa Card"
+    url: "https://www.citi.com/credit-cards/citi-costco-anywhere-visa-credit-card"
+
+  # Capital One
+  - issuer: "Capital One, National Association"
+    name: "Savor Rewards"
+    url: "https://www.capitalone.com/credit-cards/savor/"
+  - issuer: "Capital One, National Association"
+    name: "Venture Rewards"
+    url: "https://www.capitalone.com/credit-cards/venture/"
+  - issuer: "Capital One, National Association"
+    name: "Venture X Rewards"
+    url: "https://www.capitalone.com/credit-cards/venture-x/"
+  - issuer: "Capital One, National Association"
+    name: "VentureOne Rewards"
+    url: "https://www.capitalone.com/credit-cards/ventureone/"
+  - issuer: "Capital One, National Association"
+    name: "Quicksilver Rewards (ranged APR offering)"
+    url: "https://www.capitalone.com/credit-cards/quicksilver/"
+
+  # Bank of America
+  - issuer: "Bank Of America, National Association"
+    name: "Bank of America Customized Cash Rewards"
+    url: "https://www.bankofamerica.com/credit-cards/products/cash-back-credit-card/"
+  - issuer: "Bank Of America, National Association"
+    name: "Bank of America Unlimited Cash Rewards"
+    url: "https://www.bankofamerica.com/credit-cards/products/unlimited-cash-back-credit-card/"
+  - issuer: "Bank Of America, National Association"
+    name: "Bank of America Travel Rewards"
+    url: "https://www.bankofamerica.com/credit-cards/products/travel-rewards-credit-card/"
+  - issuer: "Bank Of America, National Association"
+    name: "Bank of America Premium Rewards"
+    url: "https://www.bankofamerica.com/credit-cards/products/premium-rewards-credit-card/"
+
+  # Wells Fargo
+  - issuer: "Wells Fargo Bank, National Association"
+    name: "Wells Fargo Active Cash Card"
+    url: "https://creditcards.wellsfargo.com/active-cash-credit-card/"
+  - issuer: "Wells Fargo Bank, National Association"
+    name: "Wells Fargo Autograph Card"
+    url: "https://creditcards.wellsfargo.com/autograph-visa-credit-card/"
+  - issuer: "Wells Fargo Bank, National Association"
+    name: "Wells Fargo Autograph Journey Card"
+    url: "https://creditcards.wellsfargo.com/autograph-journey-visa-credit-card/"

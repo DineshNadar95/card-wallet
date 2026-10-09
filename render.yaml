@@ -46,3 +46,32 @@ services:
     buildCommand: pip install uv && uv sync --frozen --no-dev
     startCommand: uv run python -m app.jobs.reminders
     envVars: *backendEnv
+
+  # Weekly rewards refresh from issuer pages (Sundays 09:00 UTC). Docker: needs Chromium.
+  - type: cron
+    name: card-wallet-scraper
+    runtime: docker
+    dockerfilePath: ./scraper/Dockerfile
+    dockerContext: .
+    schedule: "0 9 * * 0"
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-opus-5-5
+      - key: OWNER_EMAIL
+        sync: false
+      - key: SCRAPER_MIN_DELAY
+        value: "10"
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false

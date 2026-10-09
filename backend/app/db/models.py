@@ -180,6 +180,8 @@ class CardEarnRateStaging(_EarnRateColumns, Base):
         _enum(ValidationStatus, "validation_status"), default=ValidationStatus.pending
     )
     validation_notes: Mapped[str | None] = mapped_column(Text)
+    # Verbatim quote from the fetched page that backs this rate; validation checks it's there.
+    evidence: Mapped[str | None] = mapped_column(Text)
 
 
 class CardEarnRateHistory(_EarnRateColumns, Base):

@@ -26,8 +26,14 @@ dev = [
     "ruff>=0.16.10",
 ]
 
-[tool.uv]
-package = false
+[build-system]
+requires = ["uv_build>=0.12.24,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# The importable package is `app/` at the project root (no src/ layout).
+module-name = "app"
+module-root = ""
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

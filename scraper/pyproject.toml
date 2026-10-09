@@ -1,0 +1,37 @@
+[project]
+name = "card-wallet-scraper"
+version = "0.1.0"
+description = "Weekly rewards refresh: issuer pages -> Claude extraction -> staging -> validation -> promotion"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=1.13.0",
+    "card-wallet-backend>=0.1.0",
+    "httpx2>=2.13.1",
+    "playwright>=1.63.0",
+    "pyyaml>=6.0.3",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+card-wallet-backend = { path = "../backend", editable = true }
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.16.10",
+]

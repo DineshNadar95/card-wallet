@@ -12,7 +12,7 @@
     "dev:api": "cd backend && uv run uvicorn app.main:app --reload --port 8000",
     "gen:api": "cd backend && uv run python scripts/export_openapi.py && cd .. && npm run gen -w packages/shared",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present && cd backend && uv run pytest -q"
+    "test": "npm run test --workspaces --if-present && cd backend && uv run pytest -q && cd ../scraper && uv run pytest -q"
   },
   "overrides": {
     "react": "19.2.3",

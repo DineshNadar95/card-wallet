@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Card Wallet">
+  <!-- Card Wallet mark: two cards from your wallet, the front one marked as the pick. -->
+  <g transform="rotate(-14 236 248)">
+    <rect x="52" y="140" width="336" height="216" rx="34" fill="#7FB8BB"/>
+  </g>
+  <rect x="108" y="176" width="336" height="216" rx="34" fill="#0B6E73"/>
+  <rect x="146" y="222" width="70" height="52" rx="10" fill="#D9C08A"/>
+  <rect x="146" y="326" width="150" height="20" rx="10" fill="#FFFFFF" fill-opacity="0.55"/>
+  <circle cx="420" cy="380" r="78" fill="#1F6B3A" stroke="#FFFFFF" stroke-width="16"/>
+  <path d="M384 382 l26 26 l48 -54" fill="none" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

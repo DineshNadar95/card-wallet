@@ -1,3 +1,3 @@
 export function Logo() {
-  return <span className="logo" aria-hidden="true" />;
+  return <img src="/logo.svg" alt="" className="logo" width={28} height={28} />;
 }

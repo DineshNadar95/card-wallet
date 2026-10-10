@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Card Wallet">
+  <!-- App icon: full-bleed square (iOS masks the corners). Same mark, light on teal. -->
+  <rect width="1024" height="1024" fill="#0B6E73"/>
+  <g transform="translate(152 140) scale(1.38)">
+    <g transform="rotate(-14 236 248)">
+      <rect x="52" y="140" width="336" height="216" rx="34" fill="#FFFFFF" fill-opacity="0.35"/>
+    </g>
+    <rect x="108" y="176" width="336" height="216" rx="34" fill="#FFFFFF"/>
+    <rect x="146" y="222" width="70" height="52" rx="10" fill="#D9C08A"/>
+    <rect x="146" y="326" width="150" height="20" rx="10" fill="#0B6E73" fill-opacity="0.35"/>
+    <circle cx="420" cy="380" r="78" fill="#1F6B3A" stroke="#0B6E73" stroke-width="16"/>
+    <path d="M384 382 l26 26 l48 -54" fill="none" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

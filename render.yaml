@@ -4,6 +4,7 @@ services:
 - type: web
   name: card-wallet-api
   plan: free
+  region: virginia
   runtime: python
   rootDir: backend
   buildCommand: pip install uv && uv sync --frozen --no-dev
@@ -41,6 +42,7 @@ services:
 - type: cron
   name: card-wallet-reminders
   plan: 0.5c-512mb
+  region: virginia
   runtime: python
   rootDir: backend
   schedule: 0 14 * * *
@@ -76,6 +78,7 @@ services:
 - type: cron
   name: card-wallet-scraper
   plan: 0.5c-512mb
+  region: virginia
   runtime: docker
   dockerfilePath: ./scraper/Dockerfile
   dockerContext: .

@@ -497,3 +497,19 @@ describe("compare", () => {
     expect(within(row as HTMLElement).getAllByRole("cell").map((c) => c.textContent)).toEqual(["1", "0"]);
   });
 });
+
+describe("legal pages", () => {
+  it("privacy policy states what is and isn't collected", () => {
+    renderAt("/privacy");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Privacy policy");
+    expect(screen.getByText(/Full card numbers, CVVs or expiry dates/)).toBeInTheDocument();
+    expect(screen.getByText(/Your location is never sent to our servers/)).toBeInTheDocument();
+  });
+
+  it("terms say not financial advice, and the landing footer links both pages", () => {
+    renderAt("/terms");
+    expect(screen.getByRole("heading", { name: "Not financial advice" })).toBeInTheDocument();
+    renderAt("/");
+    expect(screen.getAllByRole("link", { name: "Privacy" })[0]).toHaveAttribute("href", "/privacy");
+  });
+});

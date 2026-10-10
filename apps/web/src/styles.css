@@ -1615,3 +1615,31 @@ table.catalog {
   gap: 6px;
   align-items: flex-start;
 }
+
+/* privacy / terms */
+.legal {
+  min-height: 100vh;
+  background: var(--surface);
+}
+.legal-body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px clamp(16px, 4.5vw, 32px) 64px;
+  line-height: 1.6;
+  font-size: 16px;
+}
+.legal-body h1 {
+  margin: 0 0 4px;
+  font-size: 32px;
+  letter-spacing: -0.01em;
+}
+.legal-body h2 {
+  margin: 28px 0 8px;
+  font-size: 19px;
+}
+.legal-body ul {
+  padding-left: 20px;
+}
+.legal-body li {
+  margin-bottom: 6px;
+}

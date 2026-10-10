@@ -11,6 +11,7 @@ import { Compare } from "./pages/Compare";
 import { EditOffer } from "./pages/EditOffer";
 import { Home } from "./pages/Home";
 import { Landing } from "./pages/Landing";
+import { Privacy, Terms } from "./pages/Legal";
 import { MyCards } from "./pages/MyCards";
 import { Offers } from "./pages/Offers";
 
@@ -28,6 +29,8 @@ export function App() {
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/demo" element={<StartDemo />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
       <Route path="/app" element={<AppShell />}>
         <Route index element={<Home />} />
         <Route path="cards" element={<MyCards />} />

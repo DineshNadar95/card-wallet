@@ -119,7 +119,10 @@ export function Landing() {
           Fees and APRs: {source ?? "CFPB Terms of Credit Card Plans survey"}. Reward rates from issuer
           pages, each shown with its source and date. {DISCLAIMER}
         </span>
-        <span>Card Wallet is a portfolio project. It never asks for card numbers or bank logins.</span>
+        <span>
+          Card Wallet is a portfolio project. It never asks for card numbers or bank logins. ·{" "}
+          <Link to="/privacy">Privacy</Link> · <Link to="/terms">Terms</Link>
+        </span>
       </footer>
     </div>
   );

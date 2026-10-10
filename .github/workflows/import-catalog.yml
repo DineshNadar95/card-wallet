@@ -1,0 +1,45 @@
+# One-off (and after each new CFPB release): load the CFPB TCCP card catalog into the database.
+# Run from GitHub -> Actions -> Import card catalog -> Run workflow. Needs the DATABASE_URL secret.
+name: Import card catalog
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "TCCP .xlsx URL (leave blank for the release in app/catalog/tccp.py)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      TCCP_URL: ${{ inputs.url }}
+    steps:
+      - name: Check configuration
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Add the DATABASE_URL repository secret first."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --no-dev
+      # Same migrations the API runs on start, in case the API hasn't deployed yet.
+      - run: uv run alembic upgrade head
+      - run: |
+          args=()
+          [ -n "$TCCP_URL" ] && args+=(--url "$TCCP_URL")
+          uv run python -m app.catalog.tccp "${args[@]}"

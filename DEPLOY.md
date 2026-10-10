@@ -33,9 +33,9 @@ one needs a value from the step before.
 
 3. The API runs `alembic upgrade head` on every start, so the schema (and Row Level Security
    on Supabase) is created on the first deploy.
-4. **Load the card catalog once:** from your machine, `cd backend` and run
-   `DATABASE_URL='<same string>' uv run python -m app.catalog.tccp`
-   (Render's free plan has no shell).
+4. **Load the card catalog once:** add the `DATABASE_URL` GitHub secret (section 2b), then
+   GitHub → Actions → **Import card catalog** → Run workflow. (Render's free plan has no
+   shell; this way the database password never needs to be on your laptop.)
 5. Check `https://<api>.onrender.com/health` returns `{"status":"ok",...}`.
 
 ## 2b. Scheduled jobs on GitHub Actions (free for public repos)

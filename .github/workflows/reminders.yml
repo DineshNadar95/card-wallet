@@ -1,0 +1,56 @@
+# Daily offer-expiry reminders (email + Expo push). Free on public repos.
+# Needs repository secrets (Settings -> Secrets and variables -> Actions): DATABASE_URL, and
+# SMTP_HOST / SMTP_USER / SMTP_PASSWORD / EMAIL_FROM for email. Skips quietly until set.
+name: Reminders
+
+on:
+  schedule:
+    - cron: "0 14 * * *" # 14:00 UTC = morning in US time zones
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only list what would be sent"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reminders
+  cancel-in-progress: false
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT || '587' }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      EXPO_ACCESS_TOKEN: ${{ secrets.EXPO_ACCESS_TOKEN }}
+      WEB_APP_URL: ${{ vars.WEB_APP_URL }}
+    steps:
+      - name: Check configuration
+        id: cfg
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::notice::DATABASE_URL secret not set; skipping reminders."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ready == 'true'
+      - uses: astral-sh/setup-uv@v6
+        if: steps.cfg.outputs.ready == 'true'
+      - if: steps.cfg.outputs.ready == 'true'
+        run: uv sync --frozen --no-dev
+      - if: steps.cfg.outputs.ready == 'true'
+        run: uv run python -m app.jobs.reminders ${{ inputs.dry_run && '--dry-run' || '' }}

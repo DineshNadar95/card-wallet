@@ -1,0 +1,77 @@
+# Weekly rewards refresh from issuer pages (fetch -> Claude extract -> stage -> validate ->
+# promote). Free on public repos. Needs repository secrets: DATABASE_URL, ANTHROPIC_API_KEY,
+# OWNER_EMAIL (+ SMTP_* / EMAIL_FROM for flagged-row emails). Skips quietly until set.
+name: Rewards scraper
+
+on:
+  schedule:
+    - cron: "0 9 * * 0" # Sundays 09:00 UTC
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "fetch-only: just check pages; no-promote: stage + validate only; full: promote"
+        type: choice
+        options: [fetch-only, no-promote, full]
+        default: fetch-only
+      only:
+        description: "Only cards whose name contains this text (optional)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scraper
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: scraper
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-opus-5-5' }}
+      OWNER_EMAIL: ${{ secrets.OWNER_EMAIL }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT || '587' }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      MODE: ${{ inputs.mode || 'full' }}
+      ONLY: ${{ inputs.only }}
+    steps:
+      - name: Check configuration
+        id: cfg
+        run: |
+          missing=""
+          [ -z "$OWNER_EMAIL" ] && missing="$missing OWNER_EMAIL"
+          if [ "$MODE" != "fetch-only" ]; then
+            [ -z "$DATABASE_URL" ] && missing="$missing DATABASE_URL"
+            [ -z "$ANTHROPIC_API_KEY" ] && missing="$missing ANTHROPIC_API_KEY"
+          fi
+          if [ -n "$missing" ]; then
+            echo "::notice::Secrets not set:$missing; skipping the scraper."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ready == 'true'
+      - uses: astral-sh/setup-uv@v6
+        if: steps.cfg.outputs.ready == 'true'
+      - if: steps.cfg.outputs.ready == 'true'
+        run: uv sync --frozen --no-dev
+      - if: steps.cfg.outputs.ready == 'true'
+        run: uv run playwright install --with-deps chromium
+      - if: steps.cfg.outputs.ready == 'true'
+        run: |
+          args=()
+          [ "$MODE" = "fetch-only" ] && args+=(--fetch-only)
+          [ "$MODE" = "no-promote" ] && args+=(--no-promote)
+          [ -n "$ONLY" ] && args+=(--only "$ONLY")
+          uv run python -m scraper "${args[@]}"

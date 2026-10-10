@@ -103,7 +103,7 @@ the token. Every `/me/*` query filters by it; Row Level Security is a second lay
   the user confirms in the form, and low-confidence fields are flagged "Check this". Clients
   re-encode photos to JPEG (max 2000px) first, which also strips EXIF/GPS. Limits: 5 MB,
   JPEG/PNG/WebP/GIF, 20 photos per user per hour.
-- Reminders: `uv run python -m app.jobs.reminders` (daily Render cron in `render.yaml`; add
+- Reminders: `uv run python -m app.jobs.reminders` (daily GitHub Actions workflow; add
   `--dry-run` to preview). Sends one email (SMTP) and one Expo push per user, then sets
   `reminded_at`. A skipped day catches up the next day; nothing is marked unless delivered.
 - Push needs an EAS project id in the mobile app (`npx eas-cli init` in `apps/mobile`) and a
@@ -134,7 +134,8 @@ uv run python -m scraper                         # full run
 uv run pytest -q
 ```
 
-Render runs it as a Docker cron (`scraper/Dockerfile`, schedule in `render.yaml`).
+It runs weekly on GitHub Actions (`.github/workflows/scraper.yml`). `scraper/Dockerfile` is
+kept for hosts that run containers (e.g. a Render cron, which needs a paid plan).
 
 ## Location alerts (mobile, Phase 7)
 

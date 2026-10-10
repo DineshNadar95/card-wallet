@@ -24,3 +24,4 @@ apps/mobile/android/
 # Machine-specific preview config
 .claude/launch.json
 *.tsbuildinfo
+backend/local.db

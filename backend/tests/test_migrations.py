@@ -37,3 +37,20 @@ def test_models_match_migrations(alembic_cfg):
     with create_engine(url).connect() as conn:
         diff = compare_metadata(MigrationContext.configure(conn), Base.metadata)
     assert diff == [], f"Models changed without a migration: {diff}"
+
+
+def test_url_encoded_password_from_settings(tmp_path, monkeypatch):
+    """A '%' in DATABASE_URL (e.g. '%40' for '@' in a password) must not crash env.py."""
+    from app.config import get_settings
+
+    db = tmp_path / "pct%40test.db"
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{db}")
+    get_settings.cache_clear()
+    try:
+        cfg = Config(str(BACKEND / "alembic.ini"))
+        cfg.set_main_option("script_location", str(BACKEND / "migrations"))
+        cfg.set_main_option("sqlalchemy.url", "")  # force env.py to read the settings URL
+        command.upgrade(cfg, "head")
+    finally:
+        get_settings.cache_clear()
+    assert db.exists() or (tmp_path / "pct@test.db").exists()

@@ -11,7 +11,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 if not config.get_main_option("sqlalchemy.url"):
-    config.set_main_option("sqlalchemy.url", get_settings().database_url)
+    # Alembic's config uses ConfigParser interpolation, so a URL-encoded password ("%40" for
+    # "@") must have its "%" doubled. Without this the URL (password included) ends up in an
+    # "invalid interpolation syntax" error message.
+    config.set_main_option("sqlalchemy.url", get_settings().database_url.replace("%", "%%"))
 
 target_metadata = Base.metadata
 

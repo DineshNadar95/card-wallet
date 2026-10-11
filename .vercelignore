@@ -1,0 +1,16 @@
+# The website needs only the npm workspaces it builds from.
+backend/
+scraper/
+data/
+design/
+bugs/
+docs/
+brand/
+.github/
+apps/mobile/src/
+apps/mobile/assets/
+**/.venv/
+**/node_modules/
+**/__pycache__/
+**/.env
+**/.env.*

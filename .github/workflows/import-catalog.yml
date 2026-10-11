@@ -39,7 +39,11 @@ jobs:
       - run: uv sync --frozen --no-dev
       # Same migrations the API runs on start, in case the API hasn't deployed yet.
       - run: uv run alembic upgrade head
+      # The CFPB site blocks downloads from CI runners, so by default import the copy committed
+      # in data/tccp/. The source URL recorded on every card is still the official CFPB link.
       - run: |
-          args=()
-          [ -n "$TCCP_URL" ] && args+=(--url "$TCCP_URL")
-          uv run python -m app.catalog.tccp "${args[@]}"
+          if [ -n "$TCCP_URL" ]; then
+            uv run python -m app.catalog.tccp --url "$TCCP_URL"
+          else
+            uv run python -m app.catalog.tccp --file ../data/tccp/cfpb_tccp-data_2025-12-31.xlsx
+          fi

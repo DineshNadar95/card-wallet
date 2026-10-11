@@ -25,3 +25,7 @@ apps/mobile/android/
 .claude/launch.json
 *.tsbuildinfo
 backend/local.db
+
+# Vercel CLI link + pulled env
+.vercel
+.env.local

@@ -35,7 +35,10 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-opus-5-5' }}
+      # Extract, verify, tie-break (scraper/review.py). Override with repo variables.
+      SCRAPER_EXTRACT_MODEL: ${{ vars.SCRAPER_EXTRACT_MODEL || 'claude-haiku-5-5' }}
+      SCRAPER_VERIFY_MODEL: ${{ vars.SCRAPER_VERIFY_MODEL || 'claude-haiku-5-5' }}
+      SCRAPER_TIEBREAK_MODEL: ${{ vars.SCRAPER_TIEBREAK_MODEL || 'claude-haiku-5-5' }}
       OWNER_EMAIL: ${{ secrets.OWNER_EMAIL }}
       SMTP_HOST: ${{ secrets.SMTP_HOST }}
       SMTP_PORT: ${{ secrets.SMTP_PORT || '587' }}

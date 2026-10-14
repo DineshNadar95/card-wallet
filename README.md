@@ -118,8 +118,11 @@ Earn rates come only from issuer product pages (`scraper/targets.yaml`, 29 cards
 1. **Fetch** with headless Chromium as `CardWalletBot`, honoring robots.txt (incl. Crawl-delay),
    ≥10 s between requests per host. CAPTCHAs, login walls and bot blocks are logged and
    skipped, never worked around. Aggregator domains are refused at load time.
-2. **Extract** with Claude from the page text only (no web search, no prior knowledge). Every
-   rate must carry a verbatim quote from the page.
+2. **Extract, verify, tie-break** with Claude (Haiku 5.5 by default) from the page text only (no
+   web search, no prior knowledge). One call extracts rates with verbatim quotes, a second checks
+   each rate against the page, and a third settles any disagreement or holds the rate back
+   (`scraper/review.py`). Models: repo variables `SCRAPER_EXTRACT_MODEL`, `SCRAPER_VERIFY_MODEL`,
+   `SCRAPER_TIEBREAK_MODEL`.
 3. **Stage** every row in `card_earn_rates_staging` with its quote, URL and time.
 4. **Validate**: complete, plausible (≤12% / ≤20x), quote really on the page and containing the
    rate, unit unchanged, and not more than 2x (or under half) the live value.

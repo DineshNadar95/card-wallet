@@ -29,6 +29,7 @@ from sqlalchemy.orm import Session
 
 from scraper.extract import ExtractionFailed, Extractor, to_candidates
 from scraper.fetch import Fetcher
+from scraper.review import Reviewer
 from scraper.targets import Target
 from scraper.validate import Current, missing_categories, validate
 
@@ -131,6 +132,7 @@ async def _process_card(
     fetcher: Fetcher,
     extractor: Extractor,
     now: datetime,
+    reviewer: Reviewer | None = None,
 ) -> None:
     card = db.scalar(select(Card).where(Card.issuer == t.issuer, Card.name == t.name))
     if card is None:
@@ -158,8 +160,22 @@ async def _process_card(
         return
 
     candidates = to_candidates(extraction)
+    # Second/third opinion (verify + tie-break). Held rates get a note, which flags them.
+    audit: list[str | None] = [None] * len(candidates)
+    if reviewer is not None:
+        reviewed = await reviewer.review(t.name, page.text, candidates)
+        candidates = [r.candidate for r in reviewed]
+        audit = [r.note for r in reviewed]
+        held = [r.hold for r in reviewed]
+    else:
+        held = [False] * len(candidates)
     current = _current(db, card.id)
-    for verdict in validate(candidates, current, page.text):
+    for i, verdict in enumerate(validate(candidates, current, page.text)):
+        if held[i]:
+            verdict.notes.append(audit[i] or "held by review")
+        notes = list(verdict.notes)
+        if audit[i] and not held[i]:
+            notes.append(audit[i])  # kept for the audit trail; doesn't flag the row
         c = verdict.candidate
         db.add(
             CardEarnRateStaging(
@@ -176,7 +192,7 @@ async def _process_card(
                 validation_status=ValidationStatus.passed
                 if verdict.ok
                 else ValidationStatus.flagged,
-                validation_notes="; ".join(verdict.notes) or None,
+                validation_notes="; ".join(notes) or None,
             )
         )
         run.rows_staged += 1
@@ -210,6 +226,7 @@ async def run_scrape(
     now: datetime,
     notifier: Notifier | None,
     promote: bool = True,
+    reviewer: Reviewer | None = None,
 ) -> RunReport:
     running = db.scalar(
         select(ScrapeRun).where(
@@ -237,7 +254,7 @@ async def run_scrape(
 
     try:
         for t in targets:
-            await _process_card(db, run, report, t, fetcher, extractor, now)
+            await _process_card(db, run, report, t, fetcher, extractor, now, reviewer)
             db.commit()
 
         needed = max(1, math.ceil(len(targets) * MIN_SUCCESS_RATIO))

@@ -402,3 +402,74 @@ async def test_stale_running_run_does_not_block(db):
     ta = target("Demo Card A", "a")
     report = await run(db, [ta], {ta.url: PAGE_A}, {"Demo Card A": EX_A})
     assert report.status == RunStatus.succeeded
+
+
+# ------------------------------------------------------------------ review (verify + tie-break)
+
+
+class FakeReviewer:
+    """Applies a fixed decision per category: 'agree', 'hold', or a replacement Candidate."""
+
+    def __init__(self, decisions):
+        self.decisions, self.calls = decisions, 0
+
+    async def review(self, card_name, page_text, candidates):
+        from scraper.review import Reviewed
+
+        self.calls += 1
+        out = []
+        for c in candidates:
+            d = self.decisions.get(c.category, "agree")
+            if d == "agree":
+                out.append(Reviewed(c))
+            elif d == "hold":
+                out.append(Reviewed(c, hold=True, note="tie-break picked neither: unclear"))
+            else:
+                out.append(Reviewed(d, note="tie-break chose the verifier: general rate"))
+        return out
+
+
+async def test_review_hold_flags_the_row_and_keeps_it_out_of_live(db):
+    a = card(db, "Demo Card A")
+    ta = target("Demo Card A", "a")
+    rev = FakeReviewer({"dining": "hold"})
+    report = await run(db, [ta], {ta.url: PAGE_A}, {"Demo Card A": EX_A}, reviewer=rev)
+
+    assert rev.calls == 1
+    assert set(live(db, a.id)) == {"other"}
+    row = db.scalar(select(CardEarnRateStaging).where(CardEarnRateStaging.category == "dining"))
+    assert row.validation_status == ValidationStatus.flagged
+    assert "tie-break picked neither" in row.validation_notes
+    assert report.flagged and report.flagged[0].category == "dining"
+
+
+async def test_review_correction_is_used_and_audited(db):
+    from scraper.validate import Candidate
+
+    a = card(db, "Demo Card A")
+    ta = target("Demo Card A", "a")
+    page = PAGE_A + " Earn 2X points on dining at partners. "
+    fixed = Candidate(
+        "dining", D("2"), "points", None, None, "Earn 2X points on dining at partners"
+    )
+    await run(
+        db, [ta], {ta.url: page}, {"Demo Card A": EX_A}, reviewer=FakeReviewer({"dining": fixed})
+    )
+
+    assert live(db, a.id)["dining"][:2] == (D("2"), "points")
+    row = db.scalar(select(CardEarnRateStaging).where(CardEarnRateStaging.category == "dining"))
+    assert row.validation_status == ValidationStatus.promoted
+    assert "tie-break chose the verifier" in row.validation_notes  # audit note kept
+
+
+async def test_review_correction_still_faces_the_quote_check(db):
+    """A reviewer's version whose quote isn't on the page is still flagged."""
+    from scraper.validate import Candidate
+
+    a = card(db, "Demo Card A")
+    ta = target("Demo Card A", "a")
+    bogus = Candidate("dining", D("5"), "points", None, None, "Earn 5X on dining")  # not on page
+    await run(
+        db, [ta], {ta.url: PAGE_A}, {"Demo Card A": EX_A}, reviewer=FakeReviewer({"dining": bogus})
+    )
+    assert "dining" not in live(db, a.id)

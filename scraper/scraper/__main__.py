@@ -24,6 +24,7 @@ from scraper.config import get_scraper_settings
 from scraper.extract import ClaudeExtractor
 from scraper.fetch import PoliteFetcher
 from scraper.pipeline import run_scrape
+from scraper.review import ClaudeReviewer
 from scraper.targets import load_targets
 
 log = logging.getLogger("scraper")
@@ -82,8 +83,14 @@ async def main(argv: list[str] | None = None) -> int:
         if not s.anthropic_api_key:
             log.error("Set ANTHROPIC_API_KEY to extract rates")
             return 2
-        extractor = ClaudeExtractor(
-            anthropic.AsyncAnthropic(api_key=s.anthropic_api_key), s.anthropic_model
+        client = anthropic.AsyncAnthropic(api_key=s.anthropic_api_key)
+        extractor = ClaudeExtractor(client, s.scraper_extract_model)
+        reviewer = ClaudeReviewer(client, s.scraper_verify_model, s.scraper_tiebreak_model)
+        log.info(
+            "models: extract=%s verify=%s tie-break=%s",
+            s.scraper_extract_model,
+            s.scraper_verify_model,
+            s.scraper_tiebreak_model,
         )
         with Session(get_engine()) as db:
             report = await run_scrape(
@@ -94,6 +101,7 @@ async def main(argv: list[str] | None = None) -> int:
                 now=datetime.now(UTC),
                 notifier=_notifier(),
                 promote=not args.no_promote,
+                reviewer=reviewer,
             )
     finally:
         await fetcher.close()

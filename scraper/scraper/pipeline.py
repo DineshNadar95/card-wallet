@@ -180,7 +180,8 @@ async def _process_card(
             )
         )
         run.rows_staged += 1
-        report.staged.append((t.name, c.category, f"{c.rate} {c.unit}", verdict.ok, c.evidence))
+        rate = format(c.rate.normalize(), "f") if c.rate is not None else "?"
+        report.staged.append((t.name, c.category, f"{rate} {c.unit}", verdict.ok, c.evidence))
         if verdict.ok:
             report.rows_passed += 1
         else:

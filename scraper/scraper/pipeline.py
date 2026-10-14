@@ -13,7 +13,7 @@ import math
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Protocol
+from typing import NamedTuple, Protocol
 
 from app.db.models import (
     Card,
@@ -57,14 +57,24 @@ class FlaggedRow:
     url: str
 
 
+class StagedRow(NamedTuple):
+    card: str
+    category: str
+    rate: str  # "3 points"
+    ok: bool
+    quote: str | None
+    conditions: str | None
+    notes: str | None  # why it was flagged, or the review's audit note
+
+
 @dataclass
 class RunReport:
     run_id: int
     status: RunStatus = RunStatus.running
     notes: list[str] = field(default_factory=list)
     flagged: list[FlaggedRow] = field(default_factory=list)
-    # Every staged row, passed or flagged, for the run log: (card, category, rate, ok, quote).
-    staged: list[tuple[str, str, str, bool, str | None]] = field(default_factory=list)
+    # Every staged row, passed or flagged, for the run log.
+    staged: list["StagedRow"] = field(default_factory=list)
     cards_ok: int = 0
     rows_passed: int = 0
     rows_promoted: int = 0
@@ -197,7 +207,17 @@ async def _process_card(
         )
         run.rows_staged += 1
         rate = format(c.rate.normalize(), "f") if c.rate is not None else "?"
-        report.staged.append((t.name, c.category, f"{rate} {c.unit}", verdict.ok, c.evidence))
+        report.staged.append(
+            StagedRow(
+                t.name,
+                c.category,
+                f"{rate} {c.unit}",
+                verdict.ok,
+                c.evidence,
+                c.conditions,
+                "; ".join(notes) or None,
+            )
+        )
         if verdict.ok:
             report.rows_passed += 1
         else:

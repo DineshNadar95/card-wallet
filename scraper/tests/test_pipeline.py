@@ -183,7 +183,13 @@ async def test_happy_path_stages_validates_and_promotes(db):
     assert run_row.finished_at is not None
     staged = db.scalars(select(CardEarnRateStaging)).all()
     assert {s.validation_status for s in staged} == {ValidationStatus.promoted}
-    assert ("Demo Card A", "dining", "3 points", True, "Earn 3X points on dining") in report.staged
+    row = next(r for r in report.staged if r.category == "dining")
+    assert (row.card, row.rate, row.ok, row.quote) == (
+        "Demo Card A",
+        "3 points",
+        True,
+        "Earn 3X points on dining",
+    )
     assert all(s.evidence for s in staged)
     assert notifier.sent == []  # nothing to review
 
@@ -441,6 +447,8 @@ async def test_review_hold_flags_the_row_and_keeps_it_out_of_live(db):
     assert row.validation_status == ValidationStatus.flagged
     assert "tie-break picked neither" in row.validation_notes
     assert report.flagged and report.flagged[0].category == "dining"
+    logged = next(r for r in report.staged if r.category == "dining")
+    assert not logged.ok and "tie-break picked neither" in logged.notes
 
 
 async def test_review_correction_is_used_and_audited(db):

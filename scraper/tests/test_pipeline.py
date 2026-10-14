@@ -17,8 +17,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from scraper.extract import Extraction, ExtractionFailed
-from scraper.fetch import FetchResult
-from scraper.pipeline import AlreadyRunning, run_scrape
+from scraper.fetch import FetchResult, PageImage
+from scraper.pipeline import AlreadyRunning, refresh_card_art, run_scrape
 from scraper.targets import Target
 
 NOW = datetime(2026, 10, 11, 6, 0, tzinfo=UTC)
@@ -481,3 +481,62 @@ async def test_review_correction_still_faces_the_quote_check(db):
         db, [ta], {ta.url: PAGE_A}, {"Demo Card A": EX_A}, reviewer=FakeReviewer({"dining": bogus})
     )
     assert "dining" not in live(db, a.id)
+
+
+ART_A = "https://demo-bank.test/card-art/demo-card-a.png"
+
+
+def page_with_art(url, text, art=ART_A):
+    imgs = (PageImage(art, "Demo Card A credit card", 300, 189),) if art else ()
+    return FetchResult(url, "ok", text=text, images=imgs)
+
+
+async def test_card_art_is_saved_with_promotion(db):
+    a = card(db, "Demo Card A")
+    ta = target("Demo Card A", "a")
+    report = await run(db, [ta], {ta.url: page_with_art(ta.url, PAGE_A)}, {"Demo Card A": EX_A})
+    db.refresh(a)
+    assert a.image_url == ART_A and a.image_checked_at is not None
+    assert report.art[a.id] == ("Demo Card A", ART_A)
+
+
+async def test_no_promote_leaves_card_art_alone(db):
+    a = card(db, "Demo Card A")
+    ta = target("Demo Card A", "a")
+    pages = {ta.url: page_with_art(ta.url, PAGE_A)}
+    report = await run(db, [ta], pages, {"Demo Card A": EX_A}, promote=False)
+    db.refresh(a)
+    assert a.image_url is None
+    assert report.art[a.id][1] == ART_A  # still reported in the log
+
+
+async def test_a_missed_picture_keeps_the_last_known_one(db):
+    a = card(db, "Demo Card A")
+    a.image_url = ART_A
+    db.commit()
+    ta = target("Demo Card A", "a")
+    await run(db, [ta], {ta.url: page_with_art(ta.url, PAGE_A, art=None)}, {"Demo Card A": EX_A})
+    db.refresh(a)
+    assert a.image_url == ART_A
+
+
+async def test_no_art_from_a_page_about_another_card(db):
+    a = card(db, "Demo Card A")
+    ta = target("Demo Card A", "a")
+    other = Extraction.model_validate(
+        {"card_found": False, "card_name_on_page": "Demo Card Z", "rates": []}
+    )
+    report = await run(db, [ta], {ta.url: page_with_art(ta.url, PAGE_A)}, {"Demo Card A": other})
+    assert a.id not in report.art
+
+
+async def test_refresh_card_art_updates_pictures_only(db):
+    a = card(db, "Demo Card A")
+    ta, tz = target("Demo Card A", "a"), target("Demo Card Z", "z")  # Z isn't in the catalog
+    fetcher = FakeFetcher({ta.url: page_with_art(ta.url, PAGE_A)})
+    found = await refresh_card_art(db, [ta, tz], fetcher, NOW)
+    assert found == [("Demo Card A", ART_A), ("Demo Card Z", None)]
+    db.refresh(a)
+    assert a.image_url == ART_A
+    assert live(db, a.id) == {} and db.scalars(select(ScrapeRun)).all() == []
+    assert fetcher.calls == [ta.url]

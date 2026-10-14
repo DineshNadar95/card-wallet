@@ -1267,6 +1267,17 @@
             "format": "date",
             "title": "As Of"
           },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
+          },
           "earn_rates": {
             "items": {
               "$ref": "#/components/schemas/EarnRateOut"
@@ -1476,6 +1487,17 @@
             "type": "string",
             "format": "date",
             "title": "As Of"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
           },
           "earn_rates": {
             "items": {
@@ -2557,6 +2579,17 @@
               }
             ],
             "title": "Nickname"
+          },
+          "image_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Url"
           },
           "rate": {
             "anyOf": [

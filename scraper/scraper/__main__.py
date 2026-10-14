@@ -5,6 +5,7 @@ Usage (from scraper/):
     uv run python -m scraper --only "Sapphire"    # just matching cards
     uv run python -m scraper --no-promote         # stage + validate only, live data untouched
     uv run python -m scraper --fetch-only         # check pages are reachable; no Claude, no DB
+    uv run python -m scraper --art-only           # update card pictures only; no Claude
 """
 
 import argparse
@@ -23,7 +24,7 @@ from sqlalchemy.orm import Session
 from scraper.config import get_scraper_settings
 from scraper.extract import ClaudeExtractor
 from scraper.fetch import PoliteFetcher
-from scraper.pipeline import run_scrape
+from scraper.pipeline import refresh_card_art, run_scrape
 from scraper.review import ClaudeReviewer
 from scraper.targets import load_targets
 
@@ -64,6 +65,7 @@ async def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--only", help="only targets whose name contains this text")
     ap.add_argument("--no-promote", action="store_true")
     ap.add_argument("--fetch-only", action="store_true")
+    ap.add_argument("--art-only", action="store_true")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
@@ -80,6 +82,12 @@ async def main(argv: list[str] | None = None) -> int:
     try:
         if args.fetch_only:
             return await _fetch_only(targets, fetcher)
+        if args.art_only:
+            with Session(get_engine()) as db:
+                found = await refresh_card_art(db, targets, fetcher, datetime.now(UTC))
+            for name, url in found:
+                log.info("art %s | %s", name, url or "none found (kept the last known picture)")
+            return 0
         if not s.anthropic_api_key:
             log.error("Set ANTHROPIC_API_KEY to extract rates")
             return 2
@@ -124,6 +132,8 @@ async def main(argv: list[str] | None = None) -> int:
             r.conditions or "-",
             r.notes or "-",
         )
+    for name, url in report.art.values():
+        log.info("art %s | %s", name, url or "none found")
     for n in report.notes:
         log.info("note: %s", n)
     return 1 if report.status == RunStatus.failed else 0

@@ -40,6 +40,8 @@ class CardSummary(_Out):
     secured: bool | None
     source: str
     as_of: date
+    # Link to the card's picture on the issuer's site, or null (the apps draw a colored card).
+    image_url: str | None = None
     earn_rates: list[EarnRateOut]
 
 
@@ -110,6 +112,7 @@ class PickOut(BaseModel):
     issuer: str
     last4: str | None
     nickname: str | None
+    image_url: str | None = None
     rate: EarnRateOut | None
     effective_cents: float | None
     matched_category: bool

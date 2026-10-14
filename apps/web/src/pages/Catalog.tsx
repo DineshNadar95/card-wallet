@@ -3,7 +3,6 @@ import {
   type CardSummary,
   type CatalogParams,
   MAX_COMPARE,
-  cardArt,
   categoryLabel,
   money,
   percent,
@@ -18,6 +17,7 @@ import { Link } from "react-router";
 
 import { useAuth } from "../auth";
 import { AddCardDialog } from "../components/AddCardDialog";
+import { CardThumb } from "../components/CardThumb";
 import { GoogleButton } from "../components/SignIn";
 import { SourceNote } from "../components/SourceNote";
 
@@ -155,7 +155,7 @@ export function Catalog() {
                   </td>
                   <td>
                     <div className="card-cell">
-                      <span className="art" style={{ background: cardArt(c.id) }} />
+                      <CardThumb card={c} width={44} />
                       <div>
                         <div className="strong">{c.name}</div>
                         <div className="small muted">{c.issuer}</div>

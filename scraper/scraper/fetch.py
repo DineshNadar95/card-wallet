@@ -11,8 +11,9 @@ import time
 import urllib.robotparser
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
+from html.parser import HTMLParser
 from typing import Literal, Protocol
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import httpx2
 
@@ -44,6 +45,55 @@ class FetchResult:
     text: str | None = None
     reason: str | None = None
     http_status: int | None = None
+    images: tuple["PageImage", ...] = ()  # for card art (scraper/art.py)
+    og_image: str | None = None
+
+
+@dataclass(frozen=True)
+class PageImage:
+    src: str  # absolute URL
+    alt: str
+    width: int  # natural size in pixels; 0 if it hadn't loaded
+    height: int
+
+
+# Runs in the page: every <img> plus the og:image, so art.py can pick the card's own picture.
+_IMAGES_JS = """() => {
+  const og = document.querySelector('meta[property="og:image"]');
+  const imgs = [...document.images].slice(0, 400).map(i => ({
+    src: i.currentSrc || i.src || '',
+    alt: (i.alt || i.title || '').slice(0, 300),
+    width: i.naturalWidth || 0,
+    height: i.naturalHeight || 0,
+  })).filter(i => i.src.startsWith('https://'));
+  return { og: og ? og.content : null, imgs };
+}"""
+
+
+class _ImgParser(HTMLParser):
+    def __init__(self, base: str):
+        super().__init__()
+        self.base, self.og, self.imgs = base, None, []
+
+    def handle_starttag(self, tag, attrs):
+        a = {k: v or "" for k, v in attrs}
+        if tag == "meta" and a.get("property") == "og:image" and self.og is None:
+            self.og = urljoin(self.base, a.get("content", "")) or None
+        elif tag == "img" and len(self.imgs) < 400:
+            src = urljoin(self.base, a.get("src") or a.get("data-src") or "")
+            size = [a.get(k, "") for k in ("width", "height")]
+            w, h = (int(x) if x.isdigit() else 0 for x in size)
+            if src.startswith("https://"):
+                self.imgs.append(
+                    {"src": src, "alt": a.get("alt", "")[:300], "width": w, "height": h}
+                )
+
+
+def images_from_html(html: str, base: str) -> dict:
+    """Same shape as _IMAGES_JS, from HTML alone (sizes only when the markup states them)."""
+    p = _ImgParser(base)
+    p.feed(html)
+    return {"og": p.og, "imgs": p.imgs}
 
 
 class Fetcher(Protocol):
@@ -174,6 +224,11 @@ class PoliteFetcher:
                 pass  # some pages poll forever; the DOM is already there
             status = response.status if response else None
             text = await page.inner_text("body")
+            try:
+                found = await page.evaluate(_IMAGES_JS)
+            except Exception:
+                # Some sites disable script evaluation; the rendered HTML still has the <img>s.
+                found = images_from_html(await page.content(), page.url)
         except Exception as e:
             log.warning("fetch failed for %s: %s", url, e)
             return FetchResult(url, "error", reason=f"{type(e).__name__}: {e}"[:300])
@@ -189,4 +244,8 @@ class PoliteFetcher:
             return FetchResult(
                 url, "error", reason=f"page text too large ({len(text)} chars)", http_status=status
             )
-        return FetchResult(url, "ok", text=text, http_status=status)
+        images = tuple(
+            PageImage(i["src"], i["alt"], int(i["width"]), int(i["height"])) for i in found["imgs"]
+        )
+        og = found["og"] if isinstance(found["og"], str) else None
+        return FetchResult(url, "ok", text=text, http_status=status, images=images, og_image=og)

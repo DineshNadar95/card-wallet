@@ -355,6 +355,8 @@ export interface components {
              * Format: date
              */
             as_of: string;
+            /** Image Url */
+            image_url?: string | null;
             /** Earn Rates */
             earn_rates: components["schemas"]["EarnRateOut"][];
             /** Late Fee */
@@ -401,6 +403,8 @@ export interface components {
              * Format: date
              */
             as_of: string;
+            /** Image Url */
+            image_url?: string | null;
             /** Earn Rates */
             earn_rates: components["schemas"]["EarnRateOut"][];
         };
@@ -669,6 +673,8 @@ export interface components {
             last4: string | null;
             /** Nickname */
             nickname: string | null;
+            /** Image Url */
+            image_url?: string | null;
             rate: components["schemas"]["EarnRateOut"] | null;
             /** Effective Cents */
             effective_cents: number | null;

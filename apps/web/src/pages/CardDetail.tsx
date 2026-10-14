@@ -10,6 +10,7 @@ import {
   useOffers,
   useRemoveCard,
 } from "@card-wallet/shared";
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
 import { RequireAuth } from "../components/SignIn";
@@ -26,6 +27,7 @@ function Detail({ id }: { id: number }) {
   const remove = useRemoveCard();
   const demo = useIsDemo();
   const { data: offers } = useOffers({ user_card_id: id, status: "active" });
+  const [artFailed, setArtFailed] = useState(false);
 
   if (isPending) return <p className="muted">Loading…</p>;
   if (isError || !uc)
@@ -57,17 +59,37 @@ function Detail({ id }: { id: number }) {
         <Link to="/app/cards" className="back">
           ← My cards
         </Link>
-        <div className="big-card" style={{ background: `linear-gradient(135deg, ${art}, #14181F)` }}>
-          <div className="big-card-top">
-            <span>{c.issuer}</span>
-            <span>{c.network ?? ""}</span>
+        {c.image_url && !artFailed ? (
+          <div>
+            <img
+              className="big-card-img"
+              src={c.image_url}
+              alt={`${c.name} card`}
+              width={400}
+              height={252}
+              onError={() => setArtFailed(true)}
+            />
+            <div className="big-card-caption">
+              <span>
+                <span className="strong">{uc.nickname || c.name}</span>
+                {uc.last4 && <span className="muted"> · •••• {uc.last4}</span>}
+              </span>
+              <span className="art-credit">Card image: {c.issuer}</span>
+            </div>
           </div>
-          <div className="chip-gold" />
-          <div className="big-card-bottom">
-            <span className="big-card-name">{uc.nickname || c.name}</span>
-            {uc.last4 && <span className="big-card-num">•••• {uc.last4}</span>}
+        ) : (
+          <div className="big-card" style={{ background: `linear-gradient(135deg, ${art}, #14181F)` }}>
+            <div className="big-card-top">
+              <span>{c.issuer}</span>
+              <span>{c.network ?? ""}</span>
+            </div>
+            <div className="chip-gold" />
+            <div className="big-card-bottom">
+              <span className="big-card-name">{uc.nickname || c.name}</span>
+              {uc.last4 && <span className="big-card-num">•••• {uc.last4}</span>}
+            </div>
           </div>
-        </div>
+        )}
 
         <section>
           <h2 className="section-label">Earns</h2>

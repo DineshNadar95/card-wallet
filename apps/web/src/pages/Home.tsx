@@ -24,6 +24,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
 import { useAuth } from "../auth";
+import { CardThumb } from "../components/CardThumb";
 import { PointValueDialog } from "../components/PointValueDialog";
 import { RequireAuth } from "../components/SignIn";
 
@@ -41,11 +42,14 @@ function BestCard({ pick, category }: { pick: CardPick; category: Category }) {
         <span className="best-badge">Top pick</span>
       </div>
       <div className="best-mid">
-        <div>
-          <div className="best-name">{cardTitle(pick)}</div>
-          <div className="best-issuer">
-            {pick.issuer}
-            {pick.last4 ? ` · •••• ${pick.last4}` : ""}
+        <div className="best-ident">
+          <CardThumb card={{ id: pick.card_id, name: pick.name, image_url: pick.image_url }} width={88} />
+          <div>
+            <div className="best-name">{cardTitle(pick)}</div>
+            <div className="best-issuer">
+              {pick.issuer}
+              {pick.last4 ? ` · •••• ${pick.last4}` : ""}
+            </div>
           </div>
         </div>
         {pick.rate && (
@@ -66,12 +70,14 @@ function BestCard({ pick, category }: { pick: CardPick; category: Category }) {
 function OtherOption({ pick }: { pick: CardPick }) {
   return (
     <Link to={`/app/cards/${pick.user_card_id}`} className="other">
-      <span className="other-art" style={{ background: cardArt(pick.card_id) }} />
+      <div className="other-top">
+        <CardThumb card={{ id: pick.card_id, name: pick.name, image_url: pick.image_url }} width={56} />
+        <span className="other-rate">{pick.rate ? rateLabel(pick.rate) : "—"}</span>
+      </div>
       <div className="other-body">
         <div className="strong">{cardTitle(pick)}</div>
         <div className="small muted">{pick.reason}</div>
       </div>
-      <span className="other-rate">{pick.rate ? rateLabel(pick.rate) : "—"}</span>
     </Link>
   );
 }
@@ -207,6 +213,7 @@ function SidePanels() {
         <div className="mini-cards">
           {cards?.map((uc) => (
             <Link key={uc.id} to={`/app/cards/${uc.id}`} className="mini-card" style={{ background: cardArt(uc.card.id) }}>
+              <CardThumb card={uc.card} width={48} />
               <span className="strong">{uc.nickname || uc.card.name}</span>
               <span className="small">{uc.last4 ? `•••• ${uc.last4}` : uc.card.issuer}</span>
             </Link>

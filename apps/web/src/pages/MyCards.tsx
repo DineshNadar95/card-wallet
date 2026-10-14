@@ -1,6 +1,7 @@
 import { cardArt, categoryLabel, rateLabel, useCatalog, useMyCards, useOffers } from "@card-wallet/shared";
 import { Link } from "react-router";
 
+import { CardThumb } from "../components/CardThumb";
 import { RequireAuth } from "../components/SignIn";
 import { SourceNote } from "../components/SourceNote";
 
@@ -36,6 +37,7 @@ function Wallet() {
               {offerCount.get(uc.id) ? (
                 <span className="offer-badge">{plural(offerCount.get(uc.id)!, "offer")}</span>
               ) : null}
+              <CardThumb card={uc.card} width={96} />
               <div>
                 <div className="wallet-name">{uc.nickname || uc.card.name}</div>
                 <div className="wallet-meta">

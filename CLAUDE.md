@@ -49,7 +49,7 @@ Tokens: IBM Plex Sans. Ground `#F4F5F7`, surface `#FFFFFF`, text `#14181F`, seco
 
 ## Data model
 **Shared catalog (read-only to users):**
-- `cards`: issuer, name, network, annual_fee, purchase_apr_min/max, fx_fee, late_fee, cash_advance_apr… plus `source` and `as_of` (from CFPB TCCP).
+- `cards`: issuer, name, network, annual_fee, purchase_apr_min/max, fx_fee, late_fee, cash_advance_apr… plus `source` and `as_of` (from CFPB TCCP). `image_url`, `image_checked_at`: link to the card's picture on the issuer's product page, found by the scraper (never re-hosted).
 - `card_earn_rates`: card_id, category, rate, unit (`percent` | `points` | `miles`), annual_cap, conditions (text), `source_url`, `checked_at`.
 - `card_earn_rates_staging`: same shape plus run_id, validation_status, validation_notes.
 - `card_earn_rates_history`: previous values, for audit and rollback.

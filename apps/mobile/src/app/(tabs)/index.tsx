@@ -19,6 +19,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "r
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle, Path } from "react-native-svg";
 
+import { CardThumb } from "@/components/CardThumb";
 import { Button, Loading, Muted, s, SignInCard } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { colors, fonts } from "@/lib/theme";
@@ -57,12 +58,15 @@ function Best({ pick, category }: { pick: CardPick; category: Category }) {
         <Text style={st.badge}>Top pick</Text>
       </View>
       <View style={[st.rowBetween, { alignItems: "flex-end", gap: 12 }]}>
-        <View style={{ flexShrink: 1 }}>
-          <Text style={st.bestName}>{title(pick)}</Text>
-          <Text style={st.bestIssuer}>
-            {pick.issuer}
-            {pick.last4 ? ` · •••• ${pick.last4}` : ""}
-          </Text>
+        <View style={{ flexShrink: 1, flexDirection: "row", alignItems: "center", gap: 12 }}>
+          <CardThumb card={{ id: pick.card_id, name: pick.name, image_url: pick.image_url }} width={80} />
+          <View style={{ flexShrink: 1 }}>
+            <Text style={st.bestName}>{title(pick)}</Text>
+            <Text style={st.bestIssuer}>
+              {pick.issuer}
+              {pick.last4 ? ` · •••• ${pick.last4}` : ""}
+            </Text>
+          </View>
         </View>
         {pick.rate && (
           <View style={{ alignItems: "flex-end" }}>
@@ -85,7 +89,7 @@ function Other({ pick }: { pick: CardPick }) {
   return (
     <Link href={{ pathname: "/cards/[id]", params: { id: pick.user_card_id } }} asChild>
       <Pressable accessibilityRole="link" style={st.other}>
-        <View style={[st.otherArt, { backgroundColor: cardArt(pick.card_id) }]} />
+        <CardThumb card={{ id: pick.card_id, name: pick.name, image_url: pick.image_url }} width={52} />
         <View style={{ flex: 1 }}>
           <Text style={st.otherName}>{title(pick)}</Text>
           <Text style={st.otherReason}>{pick.reason}</Text>
@@ -308,7 +312,6 @@ const st = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
-  otherArt: { width: 10, height: 34, borderRadius: 4 },
   otherName: { fontFamily: fonts.semibold, fontSize: 15, color: colors.text },
   otherReason: { fontFamily: fonts.regular, fontSize: 13, color: colors.textSecondary },
   otherRate: { fontFamily: fonts.bold, fontSize: 16, color: colors.accentDark },

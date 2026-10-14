@@ -2,6 +2,7 @@ import { cardArt, categoryLabel, rateLabel, useCatalog, useMyCards, useOffers } 
 import { Link, router } from "expo-router";
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { CardThumb } from "@/components/CardThumb";
 import { Button, Loading, Muted, s, SignInCard, SourceNote } from "@/components/ui";
 import { useAuth } from "@/lib/auth";
 import { colors, fonts } from "@/lib/theme";
@@ -33,11 +34,16 @@ function Wallet() {
           <Pressable accessibilityRole="link" style={st.card}>
             <View style={[st.art, { backgroundColor: cardArt(uc.card.id) }]}>
               {!!offerCount.get(uc.id) && <Text style={st.badge}>{plural(offerCount.get(uc.id)!, "offer")}</Text>}
-              <Text style={st.name}>{uc.nickname || uc.card.name}</Text>
-              <Text style={st.meta}>
-                {uc.card.issuer}
-                {uc.last4 ? ` · •••• ${uc.last4}` : ""}
-              </Text>
+              <View style={st.artRow}>
+                <CardThumb card={uc.card} width={84} />
+                <View style={{ flexShrink: 1 }}>
+                  <Text style={st.name}>{uc.nickname || uc.card.name}</Text>
+                  <Text style={st.meta}>
+                    {uc.card.issuer}
+                    {uc.last4 ? ` · •••• ${uc.last4}` : ""}
+                  </Text>
+                </View>
+              </View>
             </View>
             <View style={st.chips}>
               {uc.card.earn_rates.length ? (
@@ -92,6 +98,7 @@ const st = StyleSheet.create({
     overflow: "hidden",
   },
   art: { minHeight: 64, paddingHorizontal: 16, paddingVertical: 14, justifyContent: "flex-end" },
+  artRow: { flexDirection: "row", alignItems: "center", gap: 14 },
   name: { fontFamily: fonts.bold, fontSize: 17, color: "#fff" },
   meta: { fontFamily: fonts.regular, fontSize: 12, color: "#fff", opacity: 0.85 },
   chips: { padding: 12, paddingHorizontal: 16, flexDirection: "row", flexWrap: "wrap", gap: 6 },

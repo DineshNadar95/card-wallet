@@ -15,6 +15,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
 import { useAuth } from "../auth";
+import { CardThumb } from "../components/CardThumb";
 
 function parseIds(raw: string | null): number[] {
   return (raw ?? "")
@@ -38,6 +39,7 @@ function Table({ cards, pointValue, offers }: { cards: CardSummary[]; pointValue
           <span role="columnheader" />
           {cards.map((c) => (
             <span key={c.id} role="columnheader" className="cmp-card" style={{ background: cardArt(c.id) }}>
+              <CardThumb card={c} width={64} />
               <span className="strong">{c.name}</span>
               <span className="small">{c.issuer}</span>
             </span>

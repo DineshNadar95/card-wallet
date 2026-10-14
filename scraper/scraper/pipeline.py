@@ -27,6 +27,7 @@ from app.db.models import (
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from scraper.art import pick_card_image
 from scraper.extract import ExtractionFailed, Extractor, to_candidates
 from scraper.fetch import Fetcher
 from scraper.review import Reviewer
@@ -75,6 +76,8 @@ class RunReport:
     flagged: list[FlaggedRow] = field(default_factory=list)
     # Every staged row, passed or flagged, for the run log.
     staged: list["StagedRow"] = field(default_factory=list)
+    # Card art found this run: card_id -> (card name, image URL or None). Saved on promote.
+    art: dict[int, tuple[str, str | None]] = field(default_factory=dict)
     cards_ok: int = 0
     rows_passed: int = 0
     rows_promoted: int = 0
@@ -168,6 +171,7 @@ async def _process_card(
         found = extraction.card_name_on_page or "nothing"
         report.notes.append(f"{t.name}: page doesn't describe this card (found '{found}')")
         return
+    report.art[card.id] = (t.name, pick_card_image(t.name, page.images, page.og_image))
 
     candidates = to_candidates(extraction)
     # Second/third opinion (verify + tie-break). Held rates get a note, which flags them.
@@ -292,6 +296,7 @@ async def run_scrape(
             ).all()
             for s in staged:
                 _promote_row(db, s, run.id, now)
+            _save_art(db, report.art, now)
             run.rows_promoted = len(staged)
             report.rows_promoted = len(staged)
             db.commit()  # the single promotion transaction
@@ -317,6 +322,34 @@ async def run_scrape(
         except Exception:
             log.exception("owner notification failed")
     return report
+
+
+def _save_art(db: Session, art: dict[int, tuple[str, str | None]], now: datetime) -> None:
+    """Store found card art. A miss keeps the last known picture rather than clearing it."""
+    for card_id, (_, url) in art.items():
+        if url:
+            card = db.get(Card, card_id)
+            card.image_url, card.image_checked_at = url, now
+
+
+async def refresh_card_art(
+    db: Session, targets: Sequence[Target], fetcher: Fetcher, now: datetime
+) -> list[tuple[str, str | None]]:
+    """Fetch each page and update only card art: no Claude calls, no earn-rate changes."""
+    found: dict[int, tuple[str, str | None]] = {}
+    out: list[tuple[str, str | None]] = []
+    for t in targets:
+        card = db.scalar(select(Card).where(Card.issuer == t.issuer, Card.name == t.name))
+        if card is None:
+            out.append((t.name, None))
+            continue
+        page = await fetcher.fetch(t.url)
+        url = pick_card_image(t.name, page.images, page.og_image) if page.status == "ok" else None
+        found[card.id] = (t.name, url)
+        out.append((t.name, url))
+    _save_art(db, found, now)
+    db.commit()
+    return out
 
 
 def _owner_email(r: RunReport) -> tuple[str, str]:

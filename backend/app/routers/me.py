@@ -151,6 +151,7 @@ def recommend_card(
                 issuer=p.issuer,
                 last4=p.last4,
                 nickname=p.nickname,
+                image_url=uc.card.image_url,
                 rate=EarnRateOut.model_validate(rate_row) if rate_row else None,
                 effective_cents=float(p.effective_cents) if p.effective_cents is not None else None,
                 matched_category=p.matched_category,

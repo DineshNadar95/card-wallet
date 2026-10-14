@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
+import { CardThumb } from "@/components/CardThumb";
 import { Button, Loading, Muted, s, SourceNote } from "@/components/ui";
 import { colors, fonts } from "@/lib/theme";
 
@@ -30,6 +31,7 @@ function Confirm({ card, onBack }: { card: CardSummary; onBack: () => void }) {
     <KeyboardAvoidingView style={s.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View style={s.body}>
         <View style={[st.preview, { backgroundColor: cardArt(card.id) }]}>
+          <CardThumb card={card} width={96} style={{ marginBottom: 10 }} />
           <Text style={st.previewName}>{card.name}</Text>
           <Text style={st.previewIssuer}>{card.issuer}</Text>
         </View>
@@ -115,7 +117,7 @@ export default function AddCard() {
         }
         renderItem={({ item }) => (
           <Pressable accessibilityRole="button" style={st.item} onPress={() => setPicked(item)}>
-            <View style={[st.art, { backgroundColor: cardArt(item.id) }]} />
+            <CardThumb card={item} width={44} />
             <View style={{ flex: 1 }}>
               <Text style={st.itemName}>{item.name}</Text>
               <Text style={st.itemIssuer}>{item.issuer}</Text>
@@ -140,7 +142,6 @@ const st = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
-  art: { width: 40, height: 26, borderRadius: 4 },
   itemName: { fontFamily: fonts.semibold, fontSize: 15, color: colors.text },
   itemIssuer: { fontFamily: fonts.regular, fontSize: 12, color: colors.textSecondary },
   fee: { fontFamily: fonts.semibold, fontSize: 13, color: colors.text },

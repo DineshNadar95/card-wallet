@@ -76,3 +76,12 @@ def test_card_detail_includes_terms_rates_and_source(client, db):
 
 def test_card_detail_404(client):
     assert client.get("/catalog/cards/999").status_code == 404
+
+
+def test_card_image_link_is_returned_when_known(client, db):
+    with_art = make_card(db, "Demo Card A", image_url="https://demo-bank.test/art/a.png")
+    make_card(db, "Demo Card B")
+    items = {c["name"]: c for c in client.get("/catalog/cards").json()["items"]}
+    assert items["Demo Card A"]["image_url"] == "https://demo-bank.test/art/a.png"
+    assert items["Demo Card B"]["image_url"] is None
+    assert client.get(f"/catalog/cards/{with_art.id}").json()["image_url"].endswith("/a.png")

@@ -130,12 +130,17 @@ Earn rates come only from issuer product pages (`scraper/targets.yaml`, 29 cards
    fewer than half the cards refresh, or anything throws, nothing is promoted. Flagged rows
    stay in staging and the owner (`OWNER_EMAIL`) gets an email with the quote and page link.
 6. Everything is recorded in `scrape_runs`.
+7. **Card art**: from the same page, the card's own picture (alt text or file name must name
+   this card, card-shaped, not an icon or banner; `scraper/art.py`). Only its URL is stored
+   (`cards.image_url`) and saved with promotion; the apps link to it, credit the issuer, and draw
+   a colored card when it's missing or fails to load. A miss keeps the last known picture.
 
 ```bash
 cd scraper && uv sync && uv run playwright install chromium
 uv run python -m scraper --fetch-only            # are all pages reachable and allowed?
 uv run python -m scraper --only "Sapphire" --no-promote   # stage + validate one card
 uv run python -m scraper                         # full run
+uv run python -m scraper --art-only              # update card pictures only (no Claude)
 uv run pytest -q
 ```
 

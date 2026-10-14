@@ -84,7 +84,8 @@ Supabase redirect list if you want sign-in to work on previews.
 
 GitHub → Actions → **Rewards scraper** → Run workflow with mode `fetch-only` to confirm all
 issuer pages are reachable, then `no-promote` and review `card_earn_rates_staging` before
-letting the weekly schedule promote rates.
+letting the weekly schedule promote rates. Mode `art-only` fills in card pictures without
+calling Claude or touching rates (the API must have deployed first: it adds the column).
 
 ## 6. Smoke test
 

@@ -117,6 +117,10 @@ class Card(Base):
     availability: Mapped[str | None] = mapped_column(String(100))  # National / state-only
     website: Mapped[str | None] = mapped_column(Text)  # as reported to CFPB
     product_url: Mapped[str | None] = mapped_column(Text)  # issuer page, used by the scraper
+    # Card art: a link to the picture on the issuer's own product page (scraper/art.py). Never
+    # downloaded or re-hosted; the apps fall back to a plain colored card when it's missing.
+    image_url: Mapped[str | None] = mapped_column(Text)
+    image_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     source: Mapped[str] = mapped_column(String(200))  # e.g. "CFPB TCCP Jul–Dec 2025"
     source_url: Mapped[str | None] = mapped_column(Text)
     as_of: Mapped[date] = mapped_column(Date)

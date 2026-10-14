@@ -10,7 +10,8 @@ import {
   useRemoveCard,
 } from "@card-wallet/shared";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Alert, Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { OfferItem } from "@/components/OfferItem";
 import { Button, List, Loading, Muted, Row, s, SectionLabel, SourceNote } from "@/components/ui";
@@ -21,6 +22,7 @@ export default function CardDetail() {
   const { data: uc, isPending, isError } = useMyCard(Number(id));
   const remove = useRemoveCard();
   const { data: offers } = useOffers({ user_card_id: Number(id), status: "active" });
+  const [artFailed, setArtFailed] = useState(false);
 
   if (isPending) return <Loading />;
   if (isError || !uc)
@@ -56,19 +58,38 @@ export default function CardDetail() {
     <ScrollView style={s.screen} contentContainerStyle={[s.body, { gap: 18 }]}>
       <Stack.Screen options={{ title: uc.nickname || c.name }} />
 
-      <View style={[st.big, { backgroundColor: cardArt(c.id) }]}>
-        <View style={st.bigTop}>
-          <Text style={st.bigSmall}>{c.issuer}</Text>
-          <Text style={st.bigSmall}>{c.network ?? ""}</Text>
+      {c.image_url && !artFailed ? (
+        <View style={{ gap: 8 }}>
+          <Image
+            source={{ uri: c.image_url }}
+            accessibilityLabel={`${c.name} card`}
+            resizeMode="contain"
+            onError={() => setArtFailed(true)}
+            style={st.bigImage}
+          />
+          <View style={st.caption}>
+            <Text style={st.captionName} numberOfLines={1}>
+              {uc.nickname || c.name}
+              {uc.last4 ? <Text style={st.captionMuted}> · •••• {uc.last4}</Text> : null}
+            </Text>
+            <Text style={st.captionMuted}>Card image: {c.issuer}</Text>
+          </View>
         </View>
-        <View style={st.chip} />
-        <View style={st.bigBottom}>
-          <Text style={st.bigName} numberOfLines={2}>
-            {uc.nickname || c.name}
-          </Text>
-          {uc.last4 && <Text style={st.bigNum}>•••• {uc.last4}</Text>}
+      ) : (
+        <View style={[st.big, { backgroundColor: cardArt(c.id) }]}>
+          <View style={st.bigTop}>
+            <Text style={st.bigSmall}>{c.issuer}</Text>
+            <Text style={st.bigSmall}>{c.network ?? ""}</Text>
+          </View>
+          <View style={st.chip} />
+          <View style={st.bigBottom}>
+            <Text style={st.bigName} numberOfLines={2}>
+              {uc.nickname || c.name}
+            </Text>
+            {uc.last4 && <Text style={st.bigNum}>•••• {uc.last4}</Text>}
+          </View>
         </View>
-      </View>
+      )}
 
       <View>
         <SectionLabel>Earns</SectionLabel>
@@ -146,6 +167,10 @@ const st = StyleSheet.create({
     elevation: 6,
   },
   bigTop: { flexDirection: "row", justifyContent: "space-between", gap: 12 },
+  bigImage: { width: "100%", aspectRatio: 1.586, borderRadius: 16 },
+  caption: { flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", gap: 12 },
+  captionName: { fontFamily: fonts.bold, fontSize: 15, color: colors.text, flexShrink: 1 },
+  captionMuted: { fontFamily: fonts.regular, fontSize: 12, color: colors.textSecondary },
   bigSmall: { fontFamily: fonts.regular, fontSize: 13, color: "#fff", opacity: 0.85, flexShrink: 1 },
   chip: { width: 40, height: 30, borderRadius: 5, backgroundColor: "#D9C08A" },
   bigBottom: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", gap: 12 },

@@ -1,6 +1,8 @@
 import { type CardSummary, cardArt, useAddCard } from "@card-wallet/shared";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 
+import { CardThumb } from "./CardThumb";
+
 export function AddCardDialog({ card, onClose }: { card: CardSummary; onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   const add = useAddCard();
@@ -26,6 +28,7 @@ export function AddCardDialog({ card, onClose }: { card: CardSummary; onClose: (
     <dialog ref={ref} className="dialog" onClose={onClose} aria-labelledby="add-title">
       <form method="dialog" onSubmit={submit}>
         <div className="dialog-card" style={{ background: cardArt(card.id) }}>
+          <CardThumb card={card} width={96} />
           <div className="strong">{card.name}</div>
           <div className="small">{card.issuer}</div>
         </div>

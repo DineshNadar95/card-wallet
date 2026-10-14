@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "fetch-only: just check pages; no-promote: stage + validate only; full: promote"
+        description: "fetch-only: just check pages; no-promote: stage + validate only; full: promote; art-only: update card pictures only (no Claude)"
         type: choice
-        options: [fetch-only, no-promote, full]
+        options: [fetch-only, no-promote, full, art-only]
         default: fetch-only
       only:
         description: "Only cards whose name contains this text (optional)"
@@ -56,6 +56,8 @@ jobs:
           [ -z "$OWNER_EMAIL" ] && missing="$missing OWNER_EMAIL"
           if [ "$MODE" != "fetch-only" ]; then
             [ -z "$DATABASE_URL" ] && missing="$missing DATABASE_URL"
+          fi
+          if [ "$MODE" = "no-promote" ] || [ "$MODE" = "full" ]; then
             [ -z "$ANTHROPIC_API_KEY" ] && missing="$missing ANTHROPIC_API_KEY"
           fi
           if [ -n "$missing" ]; then
@@ -75,5 +77,6 @@ jobs:
           args=()
           [ "$MODE" = "fetch-only" ] && args+=(--fetch-only)
           [ "$MODE" = "no-promote" ] && args+=(--no-promote)
+          [ "$MODE" = "art-only" ] && args+=(--art-only)
           [ -n "$ONLY" ] && args+=(--only "$ONLY")
           uv run python -m scraper "${args[@]}"

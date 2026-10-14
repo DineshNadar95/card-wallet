@@ -156,3 +156,11 @@ def test_merchant_param_matches_offers(login, db):
 
 def test_empty_wallet(login):
     assert login(USER_A).get("/me/recommend", params={"category": "gas"}).json()["picks"] == []
+
+
+def test_picks_carry_the_card_image_link(login, db):
+    card = make_card(db, "Demo Art", image_url="https://demo-bank.test/art/a.png")
+    add_rate(db, card, Category.dining, "3", RateUnit.percent)
+    wallet(db, USER_A, card)
+    body = login(USER_A).get("/me/recommend", params={"category": "dining"}).json()
+    assert body["picks"][0]["image_url"] == "https://demo-bank.test/art/a.png"

@@ -183,6 +183,7 @@ async def test_happy_path_stages_validates_and_promotes(db):
     assert run_row.finished_at is not None
     staged = db.scalars(select(CardEarnRateStaging)).all()
     assert {s.validation_status for s in staged} == {ValidationStatus.promoted}
+    assert ("Demo Card A", "dining", "3 points", True, "Earn 3X points on dining") in report.staged
     assert all(s.evidence for s in staged)
     assert notifier.sent == []  # nothing to review
 

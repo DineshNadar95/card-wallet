@@ -62,6 +62,8 @@ class RunReport:
     status: RunStatus = RunStatus.running
     notes: list[str] = field(default_factory=list)
     flagged: list[FlaggedRow] = field(default_factory=list)
+    # Every staged row, passed or flagged, for the run log: (card, category, rate, ok, quote).
+    staged: list[tuple[str, str, str, bool, str | None]] = field(default_factory=list)
     cards_ok: int = 0
     rows_passed: int = 0
     rows_promoted: int = 0
@@ -178,6 +180,7 @@ async def _process_card(
             )
         )
         run.rows_staged += 1
+        report.staged.append((t.name, c.category, f"{c.rate} {c.unit}", verdict.ok, c.evidence))
         if verdict.ok:
             report.rows_passed += 1
         else:

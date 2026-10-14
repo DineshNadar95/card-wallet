@@ -105,6 +105,15 @@ async def main(argv: list[str] | None = None) -> int:
         report.rows_promoted,
         len(report.flagged),
     )
+    for card, category, rate, ok, quote in report.staged:
+        log.info(
+            "staged %s | %s | %s | %s | quote: %r",
+            "passed " if ok else "FLAGGED",
+            card,
+            category,
+            rate,
+            quote,
+        )
     for n in report.notes:
         log.info("note: %s", n)
     return 1 if report.status == RunStatus.failed else 0

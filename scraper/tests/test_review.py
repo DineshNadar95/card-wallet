@@ -35,6 +35,8 @@ def check(i, agrees, **kw):
         category=kw.get("category"),
         rate=kw.get("rate"),
         unit=kw.get("unit"),
+        annual_cap=kw.get("annual_cap"),
+        conditions=kw.get("conditions"),
         evidence=kw.get("evidence"),
         reason=kw.get("reason", "because"),
     )
@@ -107,6 +109,25 @@ async def test_disagreement_goes_to_tie_breaker_which_can_side_with_the_verifier
     assert "tie-break chose the verifier" in out[1].note
     assert [c["model"] for c in msgs.calls] == ["verify-model", "tiebreak-model"]
     assert msgs.calls[1]["output_format"] is TieBreak
+
+
+async def test_verifier_version_brings_its_own_conditions_and_cap():
+    # The extractor's conditions described the portal rate; they must not label the 2X rate.
+    portal = Candidate(
+        "travel", D("5"), "points", D("10000"), "Only via Demo Travel", "5X on travel booked"
+    )
+    msgs = FakeMessages(
+        Verification(
+            checks=[check(0, False, rate=2.0, unit="points", evidence="2X on other travel")]
+        ),
+        TieBreak(choices=[TieBreakChoice(index=0, pick="verifier", reason="portal-only")]),
+    )
+    (r,) = await reviewer(msgs).review("Demo Card A", PAGE, [portal])
+    assert (r.candidate.rate, r.candidate.annual_cap, r.candidate.conditions) == (
+        D("2.0"),
+        None,
+        None,
+    )
 
 
 async def test_tie_breaker_can_keep_the_extractor_version():

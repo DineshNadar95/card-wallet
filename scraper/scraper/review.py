@@ -41,8 +41,9 @@ VERIFY_SYSTEM = f"""\
 You check another model's extraction of a credit card's earn rates from the issuer's page.
 For each numbered claim, decide whether the page supports that exact category, rate and unit.
 If it does, set agrees=true. If not, set agrees=false and give the correct category, rate,
-unit and a short verbatim quote from the page that states it (or nulls if the page doesn't
-state a rate for that category), plus a one-line reason.
+unit, annual_cap (dollars, or null), conditions (for YOUR rate, not the claim's) and a short
+verbatim quote from the page that states it (or nulls if the page doesn't state a rate for
+that category), plus a one-line reason.
 
 {_RULES}"""
 
@@ -60,6 +61,8 @@ class RateCheck(BaseModel):
     category: Category | None
     rate: float | None
     unit: Unit | None
+    annual_cap: float | None
+    conditions: str | None
     evidence: str | None
     reason: str
 
@@ -107,6 +110,9 @@ def _from_check(c: Candidate, chk: RateCheck) -> Candidate:
         category=chk.category or c.category,
         rate=None if chk.rate is None else Decimal(str(chk.rate)),
         unit=chk.unit,
+        # The claim's cap and conditions described the claim's rate, so don't carry them over.
+        annual_cap=None if chk.annual_cap is None else Decimal(str(chk.annual_cap)),
+        conditions=chk.conditions,
         evidence=chk.evidence,
     )
 
